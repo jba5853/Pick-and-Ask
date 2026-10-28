@@ -57,7 +57,7 @@ def test_made_up_source_escalates():
     assert r.status == "escalate" and r.reason == "not_covered"
 
 
-@pytest.mark.parametrize("reason", ["safety", "personal_data", "not_covered"])
+@pytest.mark.parametrize("reason", ["personal_data", "not_covered"])
 def test_escalation_uses_pack_contact(reason):
     r = interpret(PACK, reply(status="escalate", reason=reason, answer="", source_doc=""))
     assert (r.status, r.reason) == ("escalate", reason)
@@ -66,8 +66,8 @@ def test_escalation_uses_pack_contact(reason):
 
 def test_safety_reply_uses_pack_message_not_model_text():
     r = interpret(PACK, reply(status="escalate", reason="safety", answer="Just unplug it and carry on."))
-    assert r.answer == f"{PACK.safety_message} Please check with AI Office Hours."
-    assert "unplug" not in r.answer
+    assert (r.status, r.reason) == ("escalate", "safety")
+    assert r.answer == PACK.safety_message
 
 
 def test_trim_keeps_whole_sentences():

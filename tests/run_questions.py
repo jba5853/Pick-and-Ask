@@ -45,8 +45,8 @@ def check(case: dict, result, pack) -> str | None:
             return f"expected escalate, got an answer from {result.source_doc}"
         if result.reason != case["target"]:
             return f"expected reason {case['target']}, got {result.reason}"
-        if case["target"] == "safety" and pack.safety_message not in result.answer:
-            return "safety reply is missing the pack's safety message"
+        if case["target"] == "safety" and result.answer != pack.safety_message:
+            return "safety reply should be exactly the pack's safety message"
     return None
 
 

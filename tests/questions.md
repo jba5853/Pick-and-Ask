@@ -5,7 +5,7 @@ Run with `python tests/run_questions.py` (uses the live API, costs a few cents).
 The runner reads the table below. Columns:
 
 - **Photo**: a file in `tests/images/`, or `-` for none.
-- **Expect**: `answer` (must cite the doc in **Doc / reason**) or `escalate` (must give the reason in **Doc / reason**: `not_covered`, `safety` or `personal_data`). Safety cases must also include the pack's `safety_message`.
+- **Expect**: `answer` (must cite the doc in **Doc / reason**) or `escalate` (must give the reason in **Doc / reason**: `not_covered`, `safety` or `personal_data`). Safety cases must also reply with exactly the pack's `safety_message`.
 
 When you swap in the real AI Arcade docs, update the questions and doc names here to match.
 
@@ -26,4 +26,4 @@ The runner checks status, cited doc and escalation reason. Also read the answers
 
 - At most 3 short sentences, under 50 words, that sound natural read aloud.
 - Nothing that isn't in the cited doc.
-- Escalations name AI Office Hours.
+- Escalations name AI Office Hours, except safety ones, which give only the safety message.

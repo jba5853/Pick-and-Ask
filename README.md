@@ -1,6 +1,6 @@
 # Point and Ask
 
-A Phase 1 prototype for Penn State TLT's AI Commons. Upload a photo, ask a question, and get a short answer (at most 3 sentences, under 50 words) drawn only from one knowledge pack. The answer names the doc it came from. If the docs don't cover the question, or the question is about safety or personal data, the app says so and points to the pack's escalation contact. Safety questions always get the pack's fixed `safety_message`, never advice written by the model.
+A Phase 1 prototype for Penn State TLT's AI Commons. Upload a photo, ask a question, and get a short answer (at most 3 sentences, under 50 words) drawn only from one knowledge pack. The answer names the doc it came from. If the docs don't cover the question, or the question is about safety or personal data, the app says so and points to the pack's escalation contact. Safety questions get only the pack's fixed `safety_message` (no contact line), never advice written by the model.
 
 This is a local demo, not production.
 

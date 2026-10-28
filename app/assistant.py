@@ -80,9 +80,10 @@ def trim_sentences(text: str, max_sentences: int = MAX_SENTENCES) -> str:
 
 
 def escalation(pack: Pack, reason: str) -> Result:
-    # Safety replies always use the pack's fixed message; the model never writes safety advice.
+    # Safety replies are only the pack's fixed message; the model never writes safety advice.
+    if reason == "safety":
+        return Result("escalate", pack.safety_message, None, reason)
     lead = {
-        "safety": pack.safety_message,
         "personal_data": "I can't help with identifying people or personal information.",
         "error": "Sorry, I couldn't get a reliable answer just now.",
     }.get(reason, f"I don't have that in the {pack.name} guides, so I won't guess.")
