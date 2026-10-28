@@ -64,6 +64,12 @@ def test_escalation_uses_pack_contact(reason):
     assert "AI Office Hours" in r.answer
 
 
+def test_safety_reply_uses_pack_message_not_model_text():
+    r = interpret(PACK, reply(status="escalate", reason="safety", answer="Just unplug it and carry on."))
+    assert r.answer == f"{PACK.safety_message} Please check with AI Office Hours."
+    assert "unplug" not in r.answer
+
+
 def test_trim_keeps_whole_sentences():
     text = "One. Two is here! Three? Four should go. Five too."
     assert trim_sentences(text) == "One. Two is here! Three?"

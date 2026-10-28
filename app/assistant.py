@@ -38,7 +38,7 @@ SYSTEM_TEMPLATE = """You are "Point and Ask", a help assistant for {name} at Pen
 A visitor sends a photo taken with smart glasses or a phone, plus a question. Answer ONLY from the documents below. Do not use outside knowledge, even if you are confident.
 
 Rules:
-- If one document answers the question, set status "answered", write 2-3 short, plain sentences that sound natural read aloud (no lists, no markdown), and set source_doc to that document's exact filename.
+- If one document answers the question, set status "answered", write at most 3 short sentences, under 50 words total, that sound natural read aloud (no lists, no markdown), and set source_doc to that document's exact filename.
 - If the documents do not clearly cover the question, set status "escalate", reason "not_covered".
 - If the question involves physical safety, injury, health, emergencies or anything risky, set status "escalate", reason "safety". Do not give safety advice yourself.
 - If the question asks to identify a person, or involves personal or private data (names, faces, IDs, contact details, accounts, grades), set status "escalate", reason "personal_data".
@@ -80,8 +80,9 @@ def trim_sentences(text: str, max_sentences: int = MAX_SENTENCES) -> str:
 
 
 def escalation(pack: Pack, reason: str) -> Result:
+    # Safety replies always use the pack's fixed message; the model never writes safety advice.
     lead = {
-        "safety": "That sounds like a safety question, so I won't guess.",
+        "safety": pack.safety_message,
         "personal_data": "I can't help with identifying people or personal information.",
         "error": "Sorry, I couldn't get a reliable answer just now.",
     }.get(reason, f"I don't have that in the {pack.name} guides, so I won't guess.")

@@ -1,6 +1,6 @@
 # Point and Ask
 
-A Phase 1 prototype for Penn State TLT's AI Commons. Upload a photo, ask a question, and get a 2–3 sentence answer drawn only from one knowledge pack. The answer names the doc it came from. If the docs don't cover the question, or the question is about safety or personal data, the app says so and points to the pack's escalation contact.
+A Phase 1 prototype for Penn State TLT's AI Commons. Upload a photo, ask a question, and get a short answer (at most 3 sentences, under 50 words) drawn only from one knowledge pack. The answer names the doc it came from. If the docs don't cover the question, or the question is about safety or personal data, the app says so and points to the pack's escalation contact. Safety questions always get the pack's fixed `safety_message`, never advice written by the model.
 
 This is a local demo, not production.
 
@@ -64,6 +64,7 @@ The live runner prints PASS/FAIL for each case and the answer it got. Read the a
    name: AI Arcade
    description: One sentence about what this pack covers.
    escalation: AI Office Hours
+   safety_message: Please stop using it and step away. Tell a staff member right away.
    ```
 2. Add one `.md` file per topic. Filenames are what the app cites, so use clear ones (for example `station-1-image-generator.md`).
 3. Delete the `PLACEHOLDER-*.md` files once the real docs are in, and update `tests/questions.md` to match.

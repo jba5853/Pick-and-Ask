@@ -33,7 +33,7 @@ def load_cases(path: Path = TESTS / "questions.md") -> list[dict]:
     return cases
 
 
-def check(case: dict, result) -> str | None:
+def check(case: dict, result, pack) -> str | None:
     """Return None on pass, or a short reason for failure."""
     if case["expect"] == "answer":
         if result.status != "answered":
@@ -45,6 +45,8 @@ def check(case: dict, result) -> str | None:
             return f"expected escalate, got an answer from {result.source_doc}"
         if result.reason != case["target"]:
             return f"expected reason {case['target']}, got {result.reason}"
+        if case["target"] == "safety" and pack.safety_message not in result.answer:
+            return "safety reply is missing the pack's safety message"
     return None
 
 
@@ -58,7 +60,7 @@ def main() -> int:
     for case in cases:
         image = prepare_image((TESTS / "images" / case["photo"]).read_bytes()) if case["photo"] else None
         result = ask(pack, case["question"], image)
-        problem = check(case, result)
+        problem = check(case, result, pack)
         failures += bool(problem)
         print(f"[{'PASS' if not problem else 'FAIL'}] #{case['num']} {case['question']}")
         print(f"       -> {result.status} | {result.source_doc or result.reason} | {result.answer}")

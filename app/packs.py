@@ -14,6 +14,7 @@ class Pack:
     name: str
     description: str
     escalation: str       # e.g. "AI Office Hours"
+    safety_message: str   # fixed reply for safety escalations
     docs: dict[str, str]  # filename -> markdown text
 
 
@@ -26,10 +27,10 @@ def load_pack(pack_id: str) -> Pack:
         raise ValueError(f"Unknown pack: {pack_id}")
     folder = DOCS_DIR / pack_id
     meta = yaml.safe_load((folder / "pack.yaml").read_text()) or {}
-    for key in ("name", "description", "escalation"):
+    for key in ("name", "description", "escalation", "safety_message"):
         if not meta.get(key):
             raise ValueError(f"{folder}/pack.yaml is missing '{key}'")
     docs = {f.name: f.read_text() for f in sorted(folder.glob("*.md"))}
     if not docs:
         raise ValueError(f"Pack {pack_id} has no .md files")
-    return Pack(pack_id, meta["name"], meta["description"], meta["escalation"], docs)
+    return Pack(pack_id, meta["name"], meta["description"], meta["escalation"], meta["safety_message"], docs)
