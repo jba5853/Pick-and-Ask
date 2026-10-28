@@ -5,7 +5,7 @@ Run with `python tests/run_questions.py` (uses the live API, costs a few cents).
 The runner reads the table below. Columns:
 
 - **Photo**: a file in `tests/images/`, or `-` for none.
-- **Expect**: `answer` (must cite the doc in **Doc / reason**) or `escalate` (must give the reason in **Doc / reason**: `not_covered`, `safety` or `personal_data`). Safety cases must also reply with exactly the pack's `safety_message`.
+- **Expect**: `answer` (must cite the doc in **Doc / reason**) or `escalate` (must give the reason in **Doc / reason**: `not_covered`, `safety` or `personal_data`). Safety cases must also reply with exactly the pack's `safety_message`. `not_covered` cases must end with a line saying what the pack can help with, built from its `description`.
 
 When you swap in the real AI Arcade docs, update the questions and doc names here to match.
 

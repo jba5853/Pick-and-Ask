@@ -64,6 +64,21 @@ def test_escalation_uses_pack_contact(reason):
     assert "AI Office Hours" in r.answer
 
 
+def test_not_covered_reply_says_what_pack_covers():
+    r = interpret(PACK, reply(status="escalate", reason="not_covered", answer="", source_doc=""))
+    assert r.answer == (
+        "I don't have that in the AI Arcade guides, so I won't guess. Please check with AI Office Hours. "
+        "I can help with hands-on stations where visitors try generative AI tools at the TLT AI Commons."
+    )
+
+
+@pytest.mark.parametrize("reason", ["personal_data", "error"])
+def test_other_escalations_have_no_help_line(reason):
+    r = assistant.escalation(PACK, reason)
+    assert "I can help with" not in r.answer
+    assert r.answer.endswith("Please check with AI Office Hours.")
+
+
 def test_safety_reply_uses_pack_message_not_model_text():
     r = interpret(PACK, reply(status="escalate", reason="safety", answer="Just unplug it and carry on."))
     assert (r.status, r.reason) == ("escalate", "safety")

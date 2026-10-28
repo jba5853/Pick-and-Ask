@@ -14,7 +14,7 @@ from dotenv import load_dotenv  # noqa: E402
 
 load_dotenv(ROOT / ".env")
 
-from app.assistant import ask  # noqa: E402
+from app.assistant import ask, help_line  # noqa: E402
 from app.images import prepare_image  # noqa: E402
 from app.packs import load_pack  # noqa: E402
 
@@ -47,6 +47,8 @@ def check(case: dict, result, pack) -> str | None:
             return f"expected reason {case['target']}, got {result.reason}"
         if case["target"] == "safety" and result.answer != pack.safety_message:
             return "safety reply should be exactly the pack's safety message"
+        if case["target"] == "not_covered" and not result.answer.endswith(help_line(pack)):
+            return "not_covered reply should end with what the pack can help with"
     return None
 
 

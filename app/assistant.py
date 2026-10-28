@@ -87,7 +87,18 @@ def escalation(pack: Pack, reason: str) -> Result:
         "personal_data": "I can't help with identifying people or personal information.",
         "error": "Sorry, I couldn't get a reliable answer just now.",
     }.get(reason, f"I don't have that in the {pack.name} guides, so I won't guess.")
-    return Result("escalate", f"{lead} Please check with {pack.escalation}.", None, reason)
+    reply = f"{lead} Please check with {pack.escalation}."
+    if reason == "not_covered":
+        reply += f" {help_line(pack)}"
+    return Result("escalate", reply, None, reason)
+
+
+def help_line(pack: Pack) -> str:
+    """One line on what the pack covers, built from its description."""
+    desc = pack.description.strip().rstrip(".")
+    if desc[:2].istitle():  # "Hands-on ..." -> "hands-on ...", but leave "AI ..." alone
+        desc = desc[0].lower() + desc[1:]
+    return f"I can help with {desc}."
 
 
 def interpret(pack: Pack, raw_text: str | None) -> Result:
