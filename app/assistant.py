@@ -96,7 +96,7 @@ def escalation(pack: Pack, reason: str) -> Result:
 def help_line(pack: Pack) -> str:
     """One line on what the pack covers, built from its description."""
     desc = pack.description.strip().rstrip(".")
-    if desc[:2].istitle():  # "Hands-on ..." -> "hands-on ...", but leave "AI ..." alone
+    if desc[:2].istitle():  # "The AI ..." -> "the AI ...", but leave "AI ..." alone
         desc = desc[0].lower() + desc[1:]
     return f"I can help with {desc}."
 

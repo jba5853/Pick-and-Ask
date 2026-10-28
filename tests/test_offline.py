@@ -68,7 +68,7 @@ def test_not_covered_reply_says_what_pack_covers():
     r = interpret(PACK, reply(status="escalate", reason="not_covered", answer="", source_doc=""))
     assert r.answer == (
         "I don't have that in the AI Arcade guides, so I won't guess. Please check with AI Office Hours. "
-        "I can help with hands-on stations where visitors try generative AI tools at the TLT AI Commons."
+        "I can help with the AI Arcade stations and Try This cards."
     )
 
 
