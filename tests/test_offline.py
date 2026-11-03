@@ -21,7 +21,7 @@ DOC = "a006-postcard-portals.md"
 
 def test_pack_loads():
     assert "ai-arcade" in list_packs()
-    assert PACK.escalation == "AI Office Hours"
+    assert PACK.escalation == "a Media Commons staff member or aiarcade@psu.edu"
     assert DOC in PACK.docs
 
 
@@ -49,7 +49,7 @@ def test_good_answer():
 def test_unparseable_reply_escalates():
     for bad in [None, "", "not json", "{}", '{"status": "answered"}']:
         r = interpret(PACK, bad)
-        assert r.status == "escalate" and "AI Office Hours" in r.answer
+        assert r.status == "escalate" and "a Media Commons staff member or aiarcade@psu.edu" in r.answer
 
 
 def test_made_up_source_escalates():
@@ -61,14 +61,14 @@ def test_made_up_source_escalates():
 def test_escalation_uses_pack_contact(reason):
     r = interpret(PACK, reply(status="escalate", reason=reason, answer="", source_doc=""))
     assert (r.status, r.reason) == ("escalate", reason)
-    assert "AI Office Hours" in r.answer
+    assert "a Media Commons staff member or aiarcade@psu.edu" in r.answer
 
 
 def test_not_covered_reply_says_what_pack_covers():
     r = interpret(PACK, reply(status="escalate", reason="not_covered", answer="", source_doc=""))
     assert r.answer == (
-        "I don't have that in the AI Arcade guides, so I won't guess. Please check with AI Office Hours. "
-        "I can help with the AI Arcade stations and Try This cards."
+        "I don't have that in the AI Arcade guides, so I won't guess. Please check with a Media Commons staff member or aiarcade@psu.edu. "
+        "I can help with the AI Arcade tools, activities and how to get help."
     )
 
 
@@ -76,7 +76,7 @@ def test_not_covered_reply_says_what_pack_covers():
 def test_other_escalations_have_no_help_line(reason):
     r = assistant.escalation(PACK, reason)
     assert "I can help with" not in r.answer
-    assert r.answer.endswith("Please check with AI Office Hours.")
+    assert r.answer.endswith("Please check with a Media Commons staff member or aiarcade@psu.edu.")
 
 
 def test_safety_reply_uses_pack_message_not_model_text():

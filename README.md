@@ -63,7 +63,7 @@ The live runner prints PASS/FAIL for each case and the answer it got. Read the a
    ```yaml
    name: AI Arcade
    description: One sentence about what this pack covers.
-   escalation: AI Office Hours
+   escalation: a Media Commons staff member or aiarcade@psu.edu
    safety_message: Please stop using it and step away. Tell a staff member right away.
    ```
 2. Add one `.md` file per topic. Filenames are what the app cites, so use clear ones (for example `a006-postcard-portals.md`). Start each doc with a `> Source: <url> · Retrieved <date>` line.

@@ -26,4 +26,4 @@ The runner checks status, cited doc and escalation reason. Also read the answers
 
 - At most 3 short sentences, under 50 words, that sound natural read aloud.
 - Nothing that isn't in the cited doc.
-- Escalations name AI Office Hours, except safety ones, which give only the safety message.
+- Escalations name a Media Commons staff member or aiarcade@psu.edu, except safety ones, which give only the safety message.
