@@ -14,7 +14,7 @@ from app.packs import list_packs, load_pack
 from tests.run_questions import load_cases
 
 PACK = load_pack("ai-arcade")
-DOC = "PLACEHOLDER-station-1-image-generator.md"
+DOC = "a006-postcard-portals.md"
 
 
 # --- packs ---

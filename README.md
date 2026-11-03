@@ -66,8 +66,8 @@ The live runner prints PASS/FAIL for each case and the answer it got. Read the a
    escalation: AI Office Hours
    safety_message: Please stop using it and step away. Tell a staff member right away.
    ```
-2. Add one `.md` file per topic. Filenames are what the app cites, so use clear ones (for example `station-1-image-generator.md`).
-3. Delete the `PLACEHOLDER-*.md` files once the real docs are in, and update `tests/questions.md` to match.
+2. Add one `.md` file per topic. Filenames are what the app cites, so use clear ones (for example `a006-postcard-portals.md`). Start each doc with a `> Source: <url> · Retrieved <date>` line.
+3. Update `tests/questions.md` to match the docs.
 
 Every doc in a pack is sent with each question. That works for small packs (up to roughly 100 pages). Larger packs would need search added.
 
