@@ -1,0 +1,5 @@
+name: 3D Printing
+description: Troubleshooting common FDM 3D printer problems and loading or unloading filament.
+escalation: makerspace staff
+safety_message: Stop the print and step back. The nozzle and bed are hot enough to burn you, so don't touch them. If you see smoke, smell burning or notice sparks or damaged wires, switch the printer off at the power switch if it is safe to reach and tell makerspace staff right away.
+mode: diagnose

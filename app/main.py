@@ -36,7 +36,7 @@ def packs():
     out = []
     for pack_id in list_packs():
         p = load_pack(pack_id)
-        out.append({"id": p.id, "name": p.name, "description": p.description})
+        out.append({"id": p.id, "name": p.name, "description": p.description, "mode": p.mode})
     return out
 
 

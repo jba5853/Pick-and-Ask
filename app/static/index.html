@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Point and Ask</title>
 <style>
-  :root { --bg: #f6f7f9; --card: #fff; --text: #1b1f24; --muted: #5f6b7a; --accent: #1e407c; --warn-bg: #fff4e5; --warn: #8a4b00; --ok-bg: #eaf3ff; --border: #d8dde3; }
+  :root { --bg: #f6f7f9; --card: #fff; --text: #1b1f24; --muted: #5f6b7a; --accent: #1e407c; --warn-bg: #fff4e5; --warn: #8a4b00; --ok-bg: #eaf3ff; --border: #d8dde3; --ask-bg: #f1ecff; --ask: #4b2a99; --hi: #1f7a3a; --med: #8a6100; --lo: #a3332b; --ai-bg: #fafafa; }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #14171b; --card: #1d2228; --text: #e8ebef; --muted: #9aa5b1; --accent: #8fb4ff; --warn-bg: #3a2a12; --warn: #ffc77a; --ok-bg: #1b2a40; --border: #333b44; }
+    :root { --bg: #14171b; --card: #1d2228; --text: #e8ebef; --muted: #9aa5b1; --accent: #8fb4ff; --warn-bg: #3a2a12; --warn: #ffc77a; --ok-bg: #1b2a40; --border: #333b44; --ask-bg: #2a2240; --ask: #c9b5ff; --hi: #6fd38f; --med: #f2c14e; --lo: #ff8a80; --ai-bg: #22272e; }
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
@@ -30,6 +30,22 @@
   .tag { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
   #answer { margin: 6px 0; font-size: 1.1rem; }
   #source { color: var(--muted); font-size: .9rem; }
+  .result.needs_more_info { background: var(--ask-bg); }
+  .result.needs_more_info .tag { color: var(--ask); }
+  .block { margin-top: 12px; }
+  .block[hidden] { display: none; }
+  .label { font-size: .8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .block p { margin: 2px 0 0; }
+  #diagnosis { font-size: 1.15rem; font-weight: 700; }
+  .badge { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; font-size: .75rem; font-weight: 700; vertical-align: middle; }
+  .badge.high { color: var(--hi); } .badge.medium { color: var(--med); } .badge.low { color: var(--lo); }
+  #steps { margin: 4px 0 0; padding-left: 1.4em; }
+  #steps li { margin: 3px 0; }
+  #followup { margin: 4px 0 0; font-size: 1.15rem; font-weight: 700; color: var(--ask); }
+  .hint { color: var(--muted); font-size: .9rem; }
+  .ai { padding: 10px 12px; border: 1px dashed var(--border); border-radius: 8px; background: var(--ai-bg); }
+  .ai .label { color: var(--warn); }
+  #pending { display: none; margin-top: 6px; font-size: .9rem; color: var(--ask); }
   .speak { margin-top: 8px; background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 6px 12px; }
 </style>
 </head>
@@ -48,30 +64,57 @@
 
     <label for="question">Question</label>
     <textarea id="question" name="question" required placeholder="What do I do here?"></textarea>
+    <div id="pending"></div>
 
     <button id="submit" type="submit">Ask</button>
   </form>
 
   <section id="result" class="result" aria-live="polite">
     <div class="tag" id="tag"></div>
+    <div class="block" id="obsBlock" hidden><div class="label">What I see</div><p id="observation"></p></div>
+    <div class="block" id="diagBlock" hidden><div class="label">Likely problem</div><p><span id="diagnosis"></span><span class="badge" id="confidence"></span></p></div>
+    <div class="block" id="stepsBlock" hidden><div class="label">How to fix it</div><ol id="steps"></ol></div>
+    <div class="block" id="followBlock" hidden><div class="label">I need one more detail</div><p id="followup"></p><p class="hint">Type your answer in the question box and press Ask. Your photo stays attached.</p></div>
     <p id="answer"></p>
-    <div id="source"></div>
+    <div class="block ai" id="aiBlock" hidden><div class="label">AI suggestion (not from official guides)</div><p id="aiText"></p></div>
+    <div class="block" id="source"></div>
     <button class="speak" id="speak" type="button">Read aloud</button>
   </section>
 </main>
 
 <script>
 const $ = (id) => document.getElementById(id);
+const PLACEHOLDER = { answer: "What do I do here?", diagnose: "What's wrong with my print?" };
+const modes = {};
+let pending = null;   // { question, followUp } while a clarifying question is open
+let spoken = "";      // short text for Read aloud
+let lastSent = "";    // the full question text sent last time
 
 fetch("/packs").then(r => r.json()).then(packs => {
   for (const p of packs) {
     const opt = new Option(p.name, p.id);
     opt.title = p.description;
+    modes[p.id] = p.mode;
     $("pack").add(opt);
   }
+  if (modes["ai-arcade"]) $("pack").value = "ai-arcade";  // keep the original default pack
+  updatePlaceholder();
 });
 
+function updatePlaceholder() {
+  $("question").placeholder = PLACEHOLDER[modes[$("pack").value]] || PLACEHOLDER.answer;
+}
+
+function setPending(value) {
+  pending = value;
+  $("pending").style.display = value ? "block" : "none";
+  $("pending").textContent = value ? "Answering: " + value.followUp : "";
+}
+
+$("pack").addEventListener("change", () => { updatePlaceholder(); setPending(null); });
+
 $("photo").addEventListener("change", () => {
+  setPending(null);
   const file = $("photo").files[0];
   const img = $("preview");
   if (!file) { img.style.display = "none"; return; }
@@ -85,7 +128,13 @@ $("form").addEventListener("submit", async (e) => {
   $("submit").disabled = true;
   $("submit").textContent = "Thinking…";
   try {
-    const res = await fetch("/ask", { method: "POST", body: new FormData($("form")) });
+    const body = new FormData($("form"));
+    if (pending) {
+      // The server is stateless, so send the earlier question and the follow-up along with the reply.
+      body.set("question", `${pending.question}\nYou asked: ${pending.followUp}\nMy answer: ${body.get("question")}`);
+    }
+    lastSent = body.get("question");
+    const res = await fetch("/ask", { method: "POST", body });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || "Request failed");
     show(data);
@@ -97,18 +146,57 @@ $("form").addEventListener("submit", async (e) => {
   }
 });
 
+function reveal(id, on) { $(id).hidden = !on; }
+
 function show(data) {
   const box = $("result");
+  const diagnosed = data.status === "answered" && (data.steps || []).length > 0;
   box.className = "result " + data.status;
   box.style.display = "block";
-  $("tag").textContent = data.status === "answered" ? "Answer" : "Ask a person";
-  $("answer").textContent = data.answer;
+  $("tag").textContent = { answered: diagnosed ? "Diagnosis" : "Answer", needs_more_info: "Quick question" }[data.status] || "Ask a person";
+
+  $("observation").textContent = data.observation || "";
+  reveal("obsBlock", !!data.observation);
+
+  $("diagnosis").textContent = data.diagnosis || "";
+  $("confidence").textContent = data.confidence ? data.confidence + " confidence" : "";
+  $("confidence").className = "badge " + (data.confidence || "");
+  $("confidence").hidden = !data.confidence;
+  reveal("diagBlock", !!data.diagnosis);
+
+  $("steps").replaceChildren(...(data.steps || []).map(step => {
+    const li = document.createElement("li");
+    li.textContent = step;
+    return li;
+  }));
+  reveal("stepsBlock", diagnosed);
+
+  $("followup").textContent = data.follow_up_question || "";
+  reveal("followBlock", data.status === "needs_more_info");
+
+  // A diagnosis shows its steps instead; the answer text is its short spoken version.
+  $("answer").textContent = diagnosed || data.status === "needs_more_info" ? "" : data.answer;
+  $("answer").hidden = !$("answer").textContent;
+
+  $("aiText").textContent = data.ai_suggestion || "";
+  reveal("aiBlock", !!data.ai_suggestion);
+
   $("source").textContent = data.source_doc ? "Source: " + data.source_doc : "";
+
+  spoken = data.answer + (data.ai_suggestion ? " AI suggestion, not from official guides: " + data.ai_suggestion : "");
+
+  if (data.status === "needs_more_info") {
+    setPending({ question: lastSent, followUp: data.follow_up_question });
+    $("question").value = "";
+    $("question").focus();
+  } else {
+    setPending(null);
+  }
 }
 
 $("speak").addEventListener("click", () => {
   speechSynthesis.cancel();
-  speechSynthesis.speak(new SpeechSynthesisUtterance($("answer").textContent));
+  speechSynthesis.speak(new SpeechSynthesisUtterance(spoken));
 });
 </script>
 </body>
