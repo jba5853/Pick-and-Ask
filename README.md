@@ -90,6 +90,7 @@ To get photos from Ray-Ban Meta glasses, import them in the Meta AI app, then Ai
 # Offline: no key, no cost. Checks packs, image handling, reply parsing and trimming.
 pytest
 
+# Offline tests also cover the access code and rate limits (tests/test_api.py).
 # Live: runs the 14 single-turn cases and 3 conversations in tests/questions.md (costs a few cents).
 python tests/run_questions.py
 python tests/run_questions.py 3d-printing   # one pack only
@@ -112,9 +113,47 @@ The live runner prints PASS/FAIL for each case and the answer it got, then a sum
 
 Every doc in a pack is sent with each question. That works for small packs (up to roughly 100 pages). Larger packs would need search added.
 
-## Later: reach it from your iPhone on the same Wi‑Fi
+## Demo on your phone
 
-For now the server listens only on `127.0.0.1`, so only your Mac can reach it. To test from your iPhone:
+`scripts/share.sh` gives your iPhone an HTTPS link to the app running on your Mac, using a free Cloudflare quick tunnel (no account needed). HTTPS lets the phone use the camera, the mic and read aloud.
+
+One-time setup:
+
+```bash
+brew install cloudflared
+echo 'ACCESS_CODE=pick-something-memorable' >> .env   # at least 6 characters
+source .venv/bin/activate && pip install -r requirements.txt
+```
+
+Each demo:
+
+```bash
+scripts/share.sh                 # opens on the default pack (AI Arcade)
+scripts/share.sh 3d-printing     # opens straight into the 3D printing pack
+```
+
+The script starts the server, opens the tunnel, and prints a `https://<random-words>.trycloudflare.com` link and a QR code. Scan the QR code with the iPhone camera, enter the access code once, and you're in. Press Ctrl+C to stop both. The link stops working then, and you get a new link each time.
+
+On the phone:
+
+- **Take photo** opens the camera. **Library** picks a photo, including Meta glasses photos that have synced to the Camera Roll through the Meta AI app.
+- The **mic** button fills the message box with what you said, so you can fix it before sending. It's hidden on browsers without speech recognition. On iPhone it needs Siri & Dictation turned on.
+- **Auto-read** speaks each reply. Long steps are read as their first sentence, and the full step stays on screen.
+- `?pack=3d-printing` in the link picks the pack, so a QR code stuck on a printer can open straight into the right pack.
+
+Safety:
+
+- The link is public while the script runs, so `/ask` requires the access code (`X-Access-Code`, checked in constant time). Ten wrong codes from one IP lock it out for 10 minutes.
+- Rate limits: 20 asks per 10 minutes per conversation, and 60 per 10 minutes per IP.
+- The limits and sessions are in memory and reset when the server restarts.
+- Don't share the link and code beyond the people in the demo. Every question uses your API credits.
+
+If the QR link doesn't load at first, wait about 10 seconds for the tunnel to come up, then refresh. If cloudflared complains about a config file, move `~/.cloudflared/config.yml` aside, since quick tunnels can't run with one.
+
+## Alternative: same Wi‑Fi, no tunnel
+
+
+By default the server listens only on `127.0.0.1`, so only your Mac can reach it. To test from your iPhone without a tunnel:
 
 1. Find your Mac's local IP: `ipconfig getifaddr en0` (for example `192.168.1.23`).
 2. Start the server on all interfaces:
@@ -126,6 +165,6 @@ For now the server listens only on `127.0.0.1`, so only your Mac can reach it. T
 
 Keep in mind:
 
-- Anyone on that network can then use the app, and your API credits. Only do this on a trusted network, and stop the server when you're done. There is no login.
-- Some campus networks block device-to-device traffic. If the page won't load, try a personal hotspot.
-- Plain `http://` works for uploading photos. Camera capture straight from the browser needs HTTPS, which is a Phase 2 task.
+- Anyone on that network can then use the app, and your API credits, unless `ACCESS_CODE` is set. Only do this on a trusted network, and stop the server when you're done.
+- Some campus networks block device-to-device traffic. If the page won't load, try a personal hotspot, or use `scripts/share.sh`.
+- Over plain `http://`, photos still work, but the mic needs HTTPS. Use `scripts/share.sh` for the full demo.

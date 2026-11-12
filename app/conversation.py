@@ -245,12 +245,18 @@ def step_info(session: Session, pack: Pack) -> dict | None:
     return {"number": number, "total": total, "text": step.text, "doc": step.doc}
 
 
+def speakable(text: str) -> str:
+    """Short read-aloud version of a doc step: its first sentence. The full step stays on screen."""
+    first = first_sentence(text)
+    return first if first == " ".join(text.split()) else f"{first} The rest is on screen."
+
+
 def present(session: Session, pack: Pack, intro: str, skipped: list[str] = ()) -> Result:
     session.phase = "guided"
     info = step_info(session, pack)
     if skipped:
         intro += f" One check needs {pack.escalation}, so I've noted it for them."
-    spoken = f"{intro} Step {info['number']} of {info['total']}: {info['text']}".strip()
+    spoken = f"{intro} Step {info['number']} of {info['total']}: {speakable(info['text'])}".strip()
     return Result("guided", spoken, info["doc"], "none", diagnosis=session.diagnosis,
                   confidence=session.confidence, step=info, actions=GUIDED_ACTIONS)
 

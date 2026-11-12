@@ -465,3 +465,17 @@ def test_conversation_table_is_valid():
         assert c["pack"] == "3d-printing" and c["expect"] in ("resolved", "escalate")
         assert turn_action(c["turns"][0])[0] == "message"
         assert "[walkthrough]" in c["turns"] and c["turns"][-1] == "[summary]"
+
+
+def test_read_aloud_says_a_short_version_of_long_steps(client):
+    client(m(step_ids=["stringing.md#4", "stringing.md#2"]))
+    s = new_session()
+    converse(s, PRINT, "What's wrong?")
+    r = converse(s, PRINT, "", action="walkthrough")
+    full = PRINT.steps["stringing.md#4"].text
+    assert r.step["text"] == full                                     # full text on screen
+    assert r.answer.endswith("Step 1 of 2: Check retraction (Printer settings, Extruder): a slightly higher "
+                             "retraction speed helps, and keep \"Retract on layer change\" and \"Wipe while "
+                             "retracting\" on. The rest is on screen.")
+    assert "2 mm" not in r.answer                                     # the second sentence isn't spoken
+    assert conversation.speakable("Wipe it.") == "Wipe it."           # short steps are read in full

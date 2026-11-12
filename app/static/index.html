@@ -2,106 +2,259 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1e407c">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Point and Ask</title>
 <style>
-  :root { --bg: #f6f7f9; --card: #fff; --text: #1b1f24; --muted: #5f6b7a; --accent: #1e407c; --warn-bg: #fff4e5; --warn: #8a4b00; --ok-bg: #eaf3ff; --border: #d8dde3; --ask-bg: #f1ecff; --ask: #4b2a99; --hi: #1f7a3a; --med: #8a6100; --lo: #a3332b; --ai-bg: #fafafa; --good-bg: #e9f7ee; --user-bg: #1e407c; --user-text: #fff; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg: #14171b; --card: #1d2228; --text: #e8ebef; --muted: #9aa5b1; --accent: #8fb4ff; --warn-bg: #3a2a12; --warn: #ffc77a; --ok-bg: #1b2a40; --border: #333b44; --ask-bg: #2a2240; --ask: #c9b5ff; --hi: #6fd38f; --med: #f2c14e; --lo: #ff8a80; --ai-bg: #22272e; --good-bg: #17301f; --user-bg: #2c4a80; --user-text: #fff; }
+  :root {
+    --bg: #f3f4f7; --surface: #ffffff; --surface-2: #f7f8fa; --text: #15191e; --muted: #5d6876; --border: #dfe3e8;
+    --accent: #1e407c; --accent-text: #ffffff; --accent-soft: #e8eef8;
+    --safety: #b42318; --safety-bg: #fdecea; --safety-border: #f4b4ac;
+    --staff: #8a4b00; --staff-bg: #fff4e0; --staff-border: #f3cf8e;
+    --ai: #6a3fb5; --ai-bg: #f3edfc; --ai-border: #d7c6f3;
+    --good: #1c7a3f; --good-bg: #e8f6ed;
+    --ask: #1e5fae; --ask-bg: #eaf2fd;
+    --hi: #1c7a3f; --med: #976a00; --lo: #6b7480;
+    --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 4px 16px rgba(16, 24, 40, .06);
   }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-  main { max-width: 600px; margin: 0 auto; padding: 24px 16px 48px; }
-  h1 { margin: 0 0 4px; font-size: 1.6rem; }
-  .sub { margin: 0 0 16px; color: var(--muted); }
-  .bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
-  .bar select { flex: 1 1 180px; }
-  select, textarea, input[type=file] { width: 100%; font: inherit; color: inherit; }
-  select, textarea { padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); }
-  textarea { min-height: 64px; resize: vertical; background: var(--bg); }
-  label { display: block; font-weight: 600; margin: 10px 0 6px; }
-  label:first-child { margin-top: 0; }
-  button { font: inherit; font-weight: 600; border: 0; border-radius: 8px; cursor: pointer; }
-  button:disabled { opacity: .55; cursor: default; }
-  .primary { margin-top: 12px; padding: 10px 18px; background: var(--accent); color: var(--card); }
-  .ghost { padding: 7px 12px; background: transparent; color: var(--accent); border: 1px solid var(--accent); }
-  form { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
-  #preview { display: none; max-width: 100%; max-height: 200px; margin-top: 8px; border-radius: 8px; }
-  #thread { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
-  .user { align-self: flex-end; max-width: 85%; background: var(--user-bg); color: var(--user-text); padding: 8px 12px; border-radius: 12px 12px 2px 12px; }
-  .user img { display: block; max-width: 180px; max-height: 140px; border-radius: 8px; margin-bottom: 6px; }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
-  .card.answered, .card.guided { background: var(--ok-bg); }
-  .card.resolved { background: var(--good-bg); }
-  .card.escalate { background: var(--warn-bg); }
-  .card.needs_more_info { background: var(--ask-bg); }
-  .tag { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
-  .card.escalate .tag { color: var(--warn); }
-  .card.needs_more_info .tag { color: var(--ask); }
-  .card.resolved .tag { color: var(--hi); }
-  .block { margin-top: 10px; }
-  .label { font-size: .78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-  .block p { margin: 2px 0 0; }
-  .diag { font-size: 1.15rem; font-weight: 700; }
-  .badge { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; font-size: .72rem; font-weight: 700; vertical-align: middle; }
-  .badge.high { color: var(--hi); } .badge.medium { color: var(--med); } .badge.low { color: var(--lo); } .badge.staff { color: var(--warn); }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1215; --surface: #191d22; --surface-2: #20252b; --text: #e9ecf0; --muted: #9aa4b0; --border: #2e353d;
+      --accent: #8fb4ff; --accent-text: #0f1215; --accent-soft: #1d2a40;
+      --safety: #ff8a80; --safety-bg: #3a1714; --safety-border: #6e2a24;
+      --staff: #ffc46b; --staff-bg: #33250f; --staff-border: #5e4519;
+      --ai: #c9adff; --ai-bg: #271d3b; --ai-border: #46336b;
+      --good: #6fd492; --good-bg: #15301f;
+      --ask: #8fc0ff; --ask-bg: #172a42;
+      --hi: #6fd492; --med: #f0c45a; --lo: #a3acb7;
+      --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--bg); color: var(--text); font: 17px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  button, select, textarea, input { font: inherit; color: inherit; }
+  button { cursor: pointer; border: 0; background: none; }
+  button:disabled { opacity: .5; cursor: default; }
+  [hidden] { display: none !important; }
+
+  .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; max-width: 640px; margin: 0 auto; }
+
+  /* Header */
+  .top { display: flex; align-items: center; gap: 10px; padding: calc(10px + env(safe-area-inset-top)) 16px 10px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 750; font-size: 1.2rem; letter-spacing: -.01em; flex: 1; }
+  .logo { width: 34px; height: 34px; border-radius: 10px; background: var(--accent); color: var(--accent-text); display: grid; place-items: center; }
+  .logo svg { width: 20px; height: 20px; }
+  .controls { display: flex; gap: 8px; align-items: center; padding: 0 16px 10px; }
+  .controls select { flex: 1; min-width: 0; min-height: 44px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+  .switch { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 4px; font-size: .9rem; color: var(--muted); white-space: nowrap; cursor: pointer; }
+  .switch input { appearance: none; width: 42px; height: 26px; border-radius: 999px; background: var(--border); position: relative; margin: 0; cursor: pointer; transition: background .15s; }
+  .switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+  .switch input:checked { background: var(--accent); }
+  .switch input:checked::after { transform: translateX(16px); }
+
+  /* Content */
+  main { flex: 1; overflow-y: auto; padding: 4px 16px 16px; -webkit-overflow-scrolling: touch; }
+  .welcome { padding: 18px; border-radius: 18px; background: var(--surface); box-shadow: var(--shadow); border: 1px solid var(--border); }
+  .welcome h2 { margin: 0 0 6px; font-size: 1.15rem; }
+  .welcome ol { margin: 8px 0 0; padding-left: 1.3em; color: var(--muted); }
+  .welcome li { margin: 4px 0; }
+  .you { display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin: 4px 0 8px; color: var(--muted); font-size: .92rem; }
+  .you img { width: 44px; height: 44px; object-fit: cover; border-radius: 10px; }
+  .you span { background: var(--accent-soft); color: var(--text); padding: 6px 12px; border-radius: 14px 14px 4px 14px; max-width: 80%; }
+
+  .status { display: flex; align-items: center; gap: 12px; padding: 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); font-weight: 600; }
+  .spinner { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--border); border-top-color: var(--accent); animation: spin .8s linear infinite; flex: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.4s; } }
+
+  .card { padding: 16px 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); }
+  .card.safety { background: var(--safety-bg); border-color: var(--safety-border); }
+  .card.staff { background: var(--staff-bg); border-color: var(--staff-border); }
+  .card.resolved { background: var(--good-bg); border-color: transparent; }
+  .tag { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 750; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .card.safety .tag { color: var(--safety); }
+  .card.staff .tag { color: var(--staff); }
+  .card.resolved .tag { color: var(--good); }
+  .card.ask .tag { color: var(--ask); }
+  .safety-text { margin: 8px 0 0; font-size: 1.15rem; font-weight: 650; color: var(--safety); }
+  .block { margin-top: 12px; }
+  .label { font-size: .75rem; font-weight: 750; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+  .block p { margin: 0; }
+  .diag { font-size: 1.3rem; font-weight: 750; letter-spacing: -.01em; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; margin-left: 8px; padding: 2px 9px; border-radius: 999px; font-size: .75rem; font-weight: 700; vertical-align: middle; background: var(--surface-2); border: 1px solid var(--border); }
+  .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .badge.high { color: var(--hi); } .badge.medium { color: var(--med); } .badge.low { color: var(--lo); }
   ol.steps { margin: 4px 0 0; padding-left: 1.4em; }
-  ol.steps li { margin: 3px 0; }
-  ol.steps li.staff { color: var(--muted); font-style: italic; }
-  .progress { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-weight: 700; }
+  ol.steps li { margin: 6px 0; }
+  ol.steps li.staff { color: var(--staff); font-style: italic; }
+  .pill { display: inline-block; margin-left: 6px; padding: 0 8px; border-radius: 999px; font-size: .72rem; font-weight: 700; font-style: normal; color: var(--staff); background: var(--staff-bg); border: 1px solid var(--staff-border); }
+  .intro { margin: 8px 0 0; color: var(--muted); }
+  .progress { display: flex; align-items: center; gap: 12px; margin-top: 12px; font-weight: 700; font-size: .95rem; }
   .track { flex: 1; height: 8px; border-radius: 999px; background: var(--border); overflow: hidden; }
-  .fill { height: 100%; background: var(--accent); }
-  .steptext { margin: 8px 0 0; font-size: 1.15rem; font-weight: 600; }
-  .followup { margin: 4px 0 0; font-size: 1.15rem; font-weight: 700; color: var(--ask); }
-  .answer { margin: 6px 0 0; font-size: 1.05rem; }
-  .ai { padding: 10px 12px; border: 1px dashed var(--border); border-radius: 8px; background: var(--ai-bg); }
-  .ai .label { color: var(--warn); }
-  .note { padding: 10px 12px; border-left: 3px solid var(--warn); background: var(--card); border-radius: 4px; font-size: .95rem; }
-  .source { color: var(--muted); font-size: .88rem; margin-top: 8px; }
-  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-  .actions .reply { padding: 8px 14px; background: var(--accent); color: var(--card); }
-  .actions .reply.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
-  .speak { margin-top: 10px; padding: 5px 10px; font-size: .9rem; }
+  .fill { height: 100%; border-radius: 999px; background: var(--accent); transition: width .3s; }
+  .steptext { margin: 12px 0 0; font-size: 1.2rem; font-weight: 600; line-height: 1.45; }
+  .followup { margin: 0; font-size: 1.2rem; font-weight: 700; color: var(--ask); }
+  .hint { margin: 6px 0 0; color: var(--muted); font-size: .9rem; }
+  .answer { margin: 8px 0 0; font-size: 1.08rem; }
+  .ai { padding: 12px 14px; border-radius: 14px; background: var(--ai-bg); border: 1px solid var(--ai-border); }
+  .ai .label { color: var(--ai); }
+  .note { padding: 12px 14px; border-radius: 14px; background: var(--surface); border: 1px dashed var(--staff-border); font-size: .95rem; }
+  .note .label { color: var(--staff); }
+  .source { margin-top: 12px; color: var(--muted); font-size: .85rem; }
+  .speak { margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 12px; border-radius: 10px; color: var(--accent); background: var(--accent-soft); font-weight: 600; font-size: .9rem; }
+  .speak svg { width: 18px; height: 18px; }
   .summary ul { margin: 4px 0 0; padding-left: 1.2em; }
-  .thinking { color: var(--muted); font-style: italic; }
+
+  details.earlier { margin-top: 18px; }
+  details.earlier > summary { min-height: 44px; display: flex; align-items: center; color: var(--muted); font-weight: 600; cursor: pointer; list-style: none; }
+  details.earlier > summary::-webkit-details-marker { display: none; }
+  details.earlier > summary::before { content: "▸"; margin-right: 8px; transition: transform .15s; }
+  details.earlier[open] > summary::before { transform: rotate(90deg); }
+  #earlier { display: flex; flex-direction: column; gap: 14px; opacity: .92; }
+
+  /* Bottom dock: everything reachable by thumb */
+  .dock { padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border); border-radius: 20px 20px 0 0; box-shadow: 0 -4px 20px rgba(16,24,40,.06); }
+  .quick { display: flex; gap: 8px; margin-bottom: 10px; }
+  .quick button { flex: 1; min-height: 52px; padding: 8px 10px; border-radius: 14px; font-weight: 700; background: var(--accent); color: var(--accent-text); }
+  .quick button.secondary { background: var(--accent-soft); color: var(--accent); }
+  .quick button.wide { flex: 1 1 100%; }
+  .photo-ready { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding: 6px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--border); }
+  .photo-ready img { width: 56px; height: 56px; object-fit: cover; border-radius: 10px; background: var(--border); }
+  .photo-ready span { flex: 1; font-size: .92rem; color: var(--muted); }
+  .photo-ready button { width: 44px; height: 44px; border-radius: 12px; font-size: 1.4rem; color: var(--muted); }
+  .tools { display: flex; gap: 8px; margin-bottom: 8px; }
+  .tool { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 8px 10px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--border); font-weight: 650; font-size: .95rem; }
+  .tool svg { width: 22px; height: 22px; flex: none; }
+  .tool.mic { flex: 0 0 56px; }
+  .tool.listening { background: var(--safety-bg); border-color: var(--safety-border); color: var(--safety); animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(180, 35, 24, .15); } }
+  .compose { display: flex; gap: 8px; align-items: flex-end; }
+  .compose textarea { flex: 1; min-height: 52px; max-height: 140px; padding: 13px 14px; border: 1px solid var(--border); border-radius: 16px; background: var(--bg); resize: none; line-height: 1.35; }
+  .send { width: 52px; height: 52px; flex: none; border-radius: 16px; background: var(--accent); color: var(--accent-text); display: grid; place-items: center; }
+  .send svg { width: 24px; height: 24px; }
+  .links { display: flex; justify-content: center; gap: 4px; margin-top: 6px; }
+  .links button { min-height: 40px; padding: 4px 12px; color: var(--accent); font-weight: 600; font-size: .92rem; border-radius: 10px; }
+  .toast { margin: 0 0 8px; padding: 8px 12px; border-radius: 12px; background: var(--staff-bg); color: var(--staff); font-size: .9rem; }
+
+  /* Access code */
+  dialog { border: 0; border-radius: 22px; padding: 24px; width: min(92vw, 380px); background: var(--surface); color: var(--text); box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+  dialog::backdrop { background: rgba(10, 14, 20, .55); }
+  dialog h2 { margin: 0 0 6px; }
+  dialog p { margin: 0 0 14px; color: var(--muted); }
+  dialog input { width: 100%; min-height: 52px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--bg); font-size: 1.1rem; }
+  dialog .primary { width: 100%; min-height: 52px; margin-top: 12px; border-radius: 14px; background: var(--accent); color: var(--accent-text); font-weight: 700; }
+  .error { color: var(--safety); margin-top: 10px; font-size: .92rem; min-height: 1.2em; }
 </style>
 </head>
 <body>
-<main>
-  <h1>Point and Ask</h1>
-  <p class="sub">Show a photo, describe what's wrong, and work through the fix together.</p>
-
-  <div class="bar">
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg>
+      </span>
+      Point and Ask
+    </div>
+  </header>
+  <div class="controls">
     <select id="pack" aria-label="Knowledge pack"></select>
-    <button class="ghost" id="summaryBtn" type="button" hidden>Summary</button>
-    <button class="ghost" id="newBtn" type="button">New conversation</button>
+    <label class="switch"><input type="checkbox" id="autoRead"> Auto-read</label>
   </div>
 
-  <section id="thread" aria-live="polite"></section>
+  <main id="main">
+    <section class="welcome" id="welcome">
+      <h2 id="welcomeTitle">Point at it, ask about it.</h2>
+      <ol id="welcomeSteps"></ol>
+    </section>
+    <div id="you"></div>
+    <section class="status" id="status" hidden aria-live="polite"><span class="spinner" aria-hidden="true"></span><span id="statusText">Thinking…</span></section>
+    <section id="current" aria-live="polite"></section>
+    <details class="earlier" id="earlierWrap" hidden>
+      <summary id="earlierLabel">Earlier in this conversation</summary>
+      <div id="earlier"></div>
+    </details>
+  </main>
 
-  <form id="form">
-    <label for="photo" id="photoLabel">Photo</label>
-    <input id="photo" name="photo" type="file" accept="image/*,.heic,.heif">
-    <img id="preview" alt="Photo preview">
+  <footer class="dock">
+    <p class="toast" id="toast" hidden></p>
+    <div class="quick" id="quick" hidden></div>
+    <div class="photo-ready" id="photoReady" hidden>
+      <img id="thumb" alt="Photo to send">
+      <span id="photoNote">Photo ready to send</span>
+      <button type="button" id="removePhoto" aria-label="Remove photo">×</button>
+    </div>
+    <div class="tools">
+      <button type="button" class="tool" id="cameraBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>
+        Take photo
+      </button>
+      <button type="button" class="tool" id="libraryBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="m21 16-5-5-9 9"/></svg>
+        Library
+      </button>
+      <button type="button" class="tool mic" id="micBtn" aria-label="Ask by voice" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+      </button>
+    </div>
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+    <input type="file" id="libraryInput" accept="image/*,.heic,.heif" hidden>
+    <form class="compose" id="form">
+      <textarea id="question" rows="1" placeholder="What do I do here?" aria-label="Your question" enterkeyhint="send"></textarea>
+      <button class="send" id="sendBtn" type="submit" aria-label="Send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </form>
+    <div class="links">
+      <button type="button" id="summaryBtn" hidden>Summary</button>
+      <button type="button" id="newBtn">New conversation</button>
+    </div>
+  </footer>
+</div>
 
-    <label for="question">Message</label>
-    <textarea id="question" name="question" placeholder="What do I do here?"></textarea>
-
-    <button class="primary" id="submit" type="submit">Ask</button>
+<dialog id="codeDialog">
+  <form id="codeForm" method="dialog">
+    <h2>Access code</h2>
+    <p>This demo is private. Enter the code you were given.</p>
+    <input id="codeInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Access code" required>
+    <button class="primary" type="submit" id="codeSubmit">Continue</button>
+    <div class="error" id="codeError" role="alert"></div>
   </form>
-</main>
+</dialog>
 
 <script>
 const $ = (id) => document.getElementById(id);
-const PLACEHOLDER = { answer: "What do I do here?", diagnose: "What's wrong with my print?" };
 const ACTION_LABEL = { walkthrough: "Walk me through it", done: "Done", failed: "Didn't work", repeat: "Show me again", summary: "Summary" };
+const MODE_COPY = {
+  diagnose: { placeholder: "What's wrong with my print?", title: "Show me the problem.",
+              steps: ["Take a photo of the printer or the print (or pick one from your glasses in Library).",
+                      "Ask what's wrong, by typing or with the mic.",
+                      "Tap Walk me through it to fix it one step at a time."] },
+  answer: { placeholder: "What do I do here?", title: "Point at it, ask about it.",
+            steps: ["Take a photo of the station (or pick one from your glasses in Library).",
+                    "Ask what to do, by typing or with the mic.",
+                    "Answers come only from the official guides."] },
+};
+const STAFF_REASONS = new Set(["staff_only", "not_fixed", "not_covered", "personal_data", "error"]);
+
+const store = {  // browser storage can be missing or blocked; fall back to memory
+  mem: {},
+  get(area, key) { try { return window[area].getItem(key); } catch { return this.mem[key] ?? null; } },
+  set(area, key, value) { try { window[area].setItem(key, value); } catch { this.mem[key] = value; } },
+  del(area, key) { try { window[area].removeItem(key); } catch { delete this.mem[key]; } },
+};
+
 const modes = {};
 let sessionId = newId();
 let busy = false;
+let photo = null;           // File waiting to be sent
+let codeRequired = false;
+let pendingRetry = null;    // a send to retry after entering the access code
+let statusTimer = null;
 
 function newId() {
   if (crypto.randomUUID) return crypto.randomUUID();
-  // randomUUID needs HTTPS; getRandomValues also works over plain http on the local network.
   return Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, "0")).join("");
 }
 
@@ -112,51 +265,228 @@ function el(tag, cls, text) {
   return node;
 }
 
-fetch("/packs").then(r => r.json()).then(packs => {
-  for (const p of packs) {
-    const opt = new Option(p.name, p.id);
-    opt.title = p.description;
-    modes[p.id] = p.mode;
-    $("pack").add(opt);
-  }
-  if (modes["ai-arcade"]) $("pack").value = "ai-arcade";  // keep the original default pack
-  packChanged();
+// ---------- startup ----------
+
+Promise.all([fetch("/packs").then(r => r.json()), fetch("/config").then(r => r.json()).catch(() => ({}))])
+  .then(([packs, config]) => {
+    for (const p of packs) {
+      const opt = new Option(p.name, p.id);
+      opt.title = p.description;
+      modes[p.id] = p.mode;
+      $("pack").add(opt);
+    }
+    const wanted = new URLSearchParams(location.search).get("pack");
+    $("pack").value = modes[wanted] ? wanted : (modes["ai-arcade"] ? "ai-arcade" : packs[0]?.id);
+    packChanged();
+    codeRequired = !!config.access_code_required;
+    if (codeRequired && !store.get("sessionStorage", "pa-code")) askForCode();
+  });
+
+$("autoRead").checked = store.get("localStorage", "pa-autoread") === "1";
+$("autoRead").addEventListener("change", () => {
+  store.set("localStorage", "pa-autoread", $("autoRead").checked ? "1" : "0");
+  if ($("autoRead").checked) unlockSpeech();
+  else speechSynthesis?.cancel();
 });
 
 function packChanged() {
   const mode = modes[$("pack").value] || "answer";
-  $("question").placeholder = PLACEHOLDER[mode];
+  const copy = MODE_COPY[mode];
+  $("question").placeholder = copy.placeholder;
+  $("welcomeTitle").textContent = copy.title;
+  $("welcomeSteps").replaceChildren(...copy.steps.map(s => el("li", "", s)));
   $("summaryBtn").hidden = mode !== "diagnose";
+  const url = new URL(location.href);
+  url.searchParams.set("pack", $("pack").value);
+  history.replaceState(null, "", url);
 }
 
 function reset() {
   sessionId = newId();
-  $("thread").replaceChildren();
-  $("photoLabel").textContent = "Photo";
-  $("form").reset();
-  $("preview").style.display = "none";
+  speechSynthesis?.cancel();
+  $("current").replaceChildren();
+  $("you").replaceChildren();
+  $("earlier").replaceChildren();
+  $("earlierWrap").hidden = true;
+  $("welcome").hidden = false;
+  $("quick").hidden = true;
+  $("question").value = "";
+  clearPhoto();
+  autosize();
 }
 
 $("pack").addEventListener("change", () => { reset(); packChanged(); });
 $("newBtn").addEventListener("click", reset);
 $("summaryBtn").addEventListener("click", () => send("summary"));
 
-$("photo").addEventListener("change", () => {
-  const file = $("photo").files[0];
-  const img = $("preview");
-  if (!file) { img.style.display = "none"; return; }
-  img.src = URL.createObjectURL(file);
-  img.onload = () => { img.style.display = "block"; };
-  img.onerror = () => { img.style.display = "none"; }; // e.g. HEIC in browsers that can't show it
-});
+// ---------- access code ----------
 
+function askForCode(message = "") {
+  $("codeError").textContent = message;
+  $("codeInput").value = "";
+  if (!$("codeDialog").open) $("codeDialog").showModal();
+  setTimeout(() => $("codeInput").focus(), 50);
+}
+
+$("codeForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const code = $("codeInput").value.trim();
+  if (!code) return;
+  $("codeSubmit").disabled = true;
+  try {
+    const body = new FormData();
+    body.set("code", code);
+    const res = await fetch("/access", { method: "POST", body });
+    if (res.status === 204) {
+      store.set("sessionStorage", "pa-code", code);
+      $("codeDialog").close();
+      if (pendingRetry) { const retry = pendingRetry; pendingRetry = null; retry(); }
+    } else {
+      const data = await res.json().catch(() => ({}));
+      $("codeError").textContent = res.status === 429 ? data.detail : "That code didn't work. Try again.";
+    }
+  } catch {
+    $("codeError").textContent = "Couldn't reach the server. Check your connection.";
+  } finally {
+    $("codeSubmit").disabled = false;
+  }
+});
+$("codeDialog").addEventListener("cancel", (e) => { if (codeRequired) e.preventDefault(); });
+
+// ---------- photos ----------
+
+$("cameraBtn").addEventListener("click", () => $("cameraInput").click());
+$("libraryBtn").addEventListener("click", () => $("libraryInput").click());
+for (const id of ["cameraInput", "libraryInput"]) {
+  $(id).addEventListener("change", () => {
+    const file = $(id).files[0];
+    $(id).value = "";
+    if (file) setPhoto(file);
+  });
+}
+$("removePhoto").addEventListener("click", clearPhoto);
+
+function setPhoto(file) {
+  photo = file;
+  $("thumb").src = URL.createObjectURL(file);
+  $("thumb").onerror = () => { $("thumb").removeAttribute("src"); };  // e.g. HEIC on desktop browsers
+  $("photoNote").textContent = $("current").childElementCount ? "New photo ready to send" : "Photo ready to send";
+  $("photoReady").hidden = false;
+}
+
+function clearPhoto() {
+  photo = null;
+  $("photoReady").hidden = true;
+  $("thumb").removeAttribute("src");
+}
+
+// ---------- voice input ----------
+
+const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognizer = null;
+if (Recognition) {
+  $("micBtn").hidden = false;
+  $("micBtn").addEventListener("click", () => recognizer ? recognizer.stop() : listen());
+}
+
+function listen() {
+  unlockSpeech();
+  speechSynthesis?.cancel();
+  const base = $("question").value.trim();
+  recognizer = new Recognition();
+  recognizer.lang = navigator.language || "en-US";
+  recognizer.interimResults = true;
+  recognizer.continuous = false;
+  recognizer.onresult = (e) => {
+    const said = Array.from(e.results, r => r[0].transcript).join(" ").trim();
+    $("question").value = [base, said].filter(Boolean).join(" ");
+    autosize();
+  };
+  recognizer.onerror = (e) => {
+    if (e.error === "not-allowed" || e.error === "service-not-allowed") toast("Microphone is blocked. You can type instead.");
+    else if (e.error !== "no-speech" && e.error !== "aborted") toast("Couldn't hear that. Try again or type.");
+  };
+  recognizer.onend = () => {
+    recognizer = null;
+    $("micBtn").classList.remove("listening");
+    $("micBtn").setAttribute("aria-label", "Ask by voice");
+    $("question").focus();  // let the visitor fix the transcript, then send
+  };
+  try {
+    recognizer.start();
+    $("micBtn").classList.add("listening");
+    $("micBtn").setAttribute("aria-label", "Stop listening");
+  } catch {
+    recognizer = null;
+    toast("Voice input isn't available here. You can type instead.");
+  }
+}
+
+function toast(message) {
+  $("toast").textContent = message;
+  $("toast").hidden = false;
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => { $("toast").hidden = true; }, 4000);
+}
+
+// ---------- read aloud ----------
+
+let speechUnlocked = false;
+function unlockSpeech() {
+  // iOS only lets a page speak after speech was started from a tap; a silent utterance unlocks it.
+  if (speechUnlocked || !window.speechSynthesis) return;
+  speechSynthesis.speak(new SpeechSynthesisUtterance(""));
+  speechUnlocked = true;
+}
+
+function speak(text) {
+  if (!window.speechSynthesis || !text) return;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+}
+
+// ---------- sending ----------
+
+function autosize() {
+  const t = $("question");
+  t.style.height = "auto";
+  t.style.height = Math.min(t.scrollHeight, 140) + "px";
+}
+$("question").addEventListener("input", autosize);
+$("question").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); send("message"); }
+});
 $("form").addEventListener("submit", (e) => { e.preventDefault(); send("message"); });
+
+const STATUS = {
+  photo: "Looking at your photo…", message: "Reading the guides…", walkthrough: "Getting the first step…",
+  failed: "Finding the next thing to check…", done: "Nice, checking…", repeat: "One sec…", summary: "Putting together a summary…",
+};
+
+function showStatus(action, hasPhoto) {
+  $("statusText").textContent = hasPhoto ? STATUS.photo : (STATUS[action] || "Thinking…");
+  $("status").hidden = false;
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => { $("statusText").textContent = "Still working on it…"; }, 6000);
+}
+
+function hideStatus() {
+  clearTimeout(statusTimer);
+  $("status").hidden = true;
+}
 
 async function send(action) {
   if (busy) return;
+  unlockSpeech();
+  recognizer?.stop();
   const text = $("question").value.trim();
-  const file = $("photo").files[0];
+  const file = photo;
   if (action === "message" && !text && !file) { $("question").focus(); return; }
+  if (codeRequired && !store.get("sessionStorage", "pa-code")) {
+    pendingRetry = () => send(action);
+    askForCode();
+    return;
+  }
 
   const body = new FormData();
   body.set("pack", $("pack").value);
@@ -165,31 +495,43 @@ async function send(action) {
   body.set("question", action === "message" ? text : "");
   if (file) body.set("photo", file);
 
-  // Show what the visitor sent.
-  const bubble = el("div", "user");
-  if (file && $("preview").style.display === "block") {
-    const img = el("img"); img.src = $("preview").src; img.alt = "Your photo"; bubble.append(img);
-  }
-  bubble.append(document.createTextNode(action === "message" ? (text || "(photo)") : ACTION_LABEL[action]));
-  $("thread").append(bubble);
-  const thinking = el("div", "thinking", "Thinking…");
-  $("thread").append(thinking);
-  thinking.scrollIntoView({ behavior: "smooth", block: "end" });
-
+  // Move the last exchange down into "Earlier", and show what's being sent.
+  archiveCurrent();
+  $("welcome").hidden = true;
+  showYou(action === "message" ? (text || "(photo)") : ACTION_LABEL[action], file ? $("thumb").src : "");
+  showStatus(action, !!file);
+  $("quick").hidden = true;
+  $("main").scrollTo({ top: 0, behavior: "smooth" });
   setBusy(true);
   $("question").value = "";
-  if (file) {
-    $("photo").value = "";
-    $("preview").style.display = "none";
-    $("photoLabel").textContent = "Add a new photo (optional; your first one stays attached)";
-  }
+  autosize();
+  clearPhoto();
+
+  const restore = () => {  // give the draft back if the request didn't go through
+    if (action === "message") { $("question").value = text; autosize(); }
+    if (file) setPhoto(file);
+    $("you").replaceChildren();
+  };
+
   try {
-    const res = await fetch("/ask", { method: "POST", body });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || "Request failed");
-    thinking.replaceWith(renderReply(data));
+    const res = await fetch("/ask", { method: "POST", body, headers: { "X-Access-Code": store.get("sessionStorage", "pa-code") || "" } });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) {
+      store.del("sessionStorage", "pa-code");
+      hideStatus(); restore(); unarchive();
+      pendingRetry = () => send(action);
+      askForCode("Please enter the access code again.");
+      return;
+    }
+    if (!res.ok) {
+      if (res.status === 429 || res.status === 400) restore();
+      throw new Error(data.detail || "Something went wrong. Try again.");
+    }
+    hideStatus();
+    showReply(data);
   } catch (err) {
-    thinking.replaceWith(renderReply({ status: "escalate", answer: err.message, actions: [] }));
+    hideStatus();
+    showReply({ status: "escalate", reason: "error", answer: err.message || "Couldn't reach the server.", actions: [] }, false);
   } finally {
     setBusy(false);
   }
@@ -197,36 +539,101 @@ async function send(action) {
 
 function setBusy(on) {
   busy = on;
-  $("submit").disabled = on;
-  $("submit").textContent = on ? "Thinking…" : "Ask";
-  // Only the newest reply's quick-reply buttons stay usable.
-  document.querySelectorAll(".actions button").forEach(b => { b.disabled = true; });
-  if (!on) {
-    const cards = $("thread").querySelectorAll(".card");
-    cards[cards.length - 1]?.querySelectorAll(".actions button").forEach(b => { b.disabled = false; });
-  }
+  for (const b of document.querySelectorAll("#sendBtn, #quick button, #summaryBtn, #cameraBtn, #libraryBtn")) b.disabled = on;
 }
+
+function showYou(text, thumb) {
+  const row = el("div", "you");
+  if (thumb) { const img = el("img"); img.src = thumb; img.alt = ""; row.append(img); }
+  row.append(el("span", "", text));
+  $("you").replaceChildren(row);
+}
+
+let lastExchange = null;
+function archiveCurrent() {
+  if (!$("current").firstChild) return;
+  const wrap = el("div");
+  wrap.append(...$("you").childNodes, ...$("current").childNodes);
+  wrap.querySelectorAll(".speak").forEach(b => b.remove());
+  lastExchange = wrap;
+  $("earlier").prepend(wrap);
+  $("earlierWrap").hidden = false;
+  $("earlierLabel").textContent = `Earlier in this conversation (${$("earlier").childElementCount})`;
+}
+
+function unarchive() {
+  // Put the last exchange back on top if a send was abandoned (e.g. access code needed).
+  if (!lastExchange || lastExchange.parentNode !== $("earlier")) return;
+  const nodes = [...lastExchange.childNodes];
+  const card = nodes.find(n => n.classList?.contains("card"));
+  const you = nodes.filter(n => n !== card);
+  $("you").replaceChildren(...you);
+  if (card) $("current").replaceChildren(card);
+  lastExchange.remove();
+  lastExchange = null;
+  $("earlierWrap").hidden = !$("earlier").childElementCount;
+  $("earlierLabel").textContent = `Earlier in this conversation (${$("earlier").childElementCount})`;
+}
+
+function showReply(data, withActions = true) {
+  const card = renderReply(data);
+  $("current").replaceChildren(card);
+  lastExchange = null;
+  renderQuick(withActions ? data.actions || [] : []);
+  if ($("autoRead").checked) speak(spokenText(data));
+}
+
+function renderQuick(actions) {
+  const shown = actions.filter(a => ACTION_LABEL[a]);
+  $("quick").replaceChildren(...shown.map(a => {
+    const b = el("button", (a === "repeat" ? "secondary" : "") + (shown.length === 1 ? " wide" : ""), ACTION_LABEL[a]);
+    b.type = "button";
+    b.addEventListener("click", () => send(a));
+    return b;
+  }));
+  $("quick").hidden = !shown.length;
+}
+
+function spokenText(data) {
+  return (data.answer || "") + (data.ai_suggestion ? " AI suggestion, not from official guides: " + data.ai_suggestion : "");
+}
+
+// ---------- rendering ----------
 
 function block(label, child) {
   const div = el("div", "block");
   div.append(el("div", "label", label));
-  if (typeof child === "string") div.append(el("p", "", child)); else div.append(child);
+  div.append(typeof child === "string" ? el("p", "", child) : child);
   return div;
 }
 
+function confidence(level) {
+  return el("span", "badge " + level, level + " confidence");
+}
+
 function renderReply(data) {
-  const card = el("div", "card " + data.status);
   const diagnosed = data.status === "answered" && (data.steps || []).length > 0;
-  const tags = { answered: diagnosed ? "Diagnosis" : "Answer", needs_more_info: "Quick question", guided: "Guided fix",
-                 resolved: "Fixed", summary: "Summary", escalate: "Ask a person" };
-  card.append(el("div", "tag", tags[data.status] || "Answer"));
+  const safety = data.status === "escalate" && data.reason === "safety";
+  const staff = data.status === "escalate" && !safety;
+  const kind = safety ? "safety" : staff ? "staff" : data.status === "resolved" ? "resolved"
+             : data.status === "needs_more_info" ? "ask" : "official";
+  const card = el("article", "card " + kind);
+  const tags = { answered: diagnosed ? "Diagnosis" : "Answer", needs_more_info: "One quick question", guided: "Guided fix",
+                 resolved: "Fixed", summary: "Summary" };
+  card.append(el("div", "tag", safety ? "Safety first" : staff ? (data.reason === "staff_only" || data.handoff ? "Staff needed" : "Ask a person") : tags[data.status] || "Answer"));
+
+  if (safety) {
+    card.append(el("p", "safety-text", data.answer));
+    card.append(speakButton(data));
+    return card;
+  }
 
   if (data.observation) card.append(block("What I see", data.observation));
 
   if (data.diagnosis && (diagnosed || data.status === "needs_more_info")) {
     const p = el("p");
     p.append(el("span", "diag", data.diagnosis));
-    if (data.confidence) p.append(el("span", "badge " + data.confidence, data.confidence + " confidence"));
+    if (data.confidence) p.append(confidence(data.confidence));
     card.append(block("Likely problem", p));
   }
 
@@ -234,7 +641,7 @@ function renderReply(data) {
     const ol = el("ol", "steps");
     for (const s of data.steps) {
       const li = el("li", s.staff_only ? "staff" : "", s.text);
-      if (s.staff_only) li.append(el("span", "badge staff", "staff only"));
+      if (s.staff_only) li.append(el("span", "pill", "staff only"));
       ol.append(li);
     }
     card.append(block("How to fix it", ol));
@@ -242,19 +649,21 @@ function renderReply(data) {
 
   if (data.status === "guided" && data.step) {
     const { number, total, text } = data.step;
-    const intro = data.answer.split(` Step ${number} of ${total}:`)[0];
-    if (intro) card.append(el("p", "answer", intro));
+    const intro = (data.answer || "").split(` Step ${number} of ${total}:`)[0];
+    if (intro) card.append(el("p", "intro", intro));
     const prog = el("div", "progress");
     prog.append(el("span", "", `Step ${number} of ${total}`));
     const track = el("div", "track"), fill = el("div", "fill");
     fill.style.width = Math.round(100 * number / total) + "%";
-    track.append(fill); prog.append(track);
+    track.append(fill);
+    prog.append(track);
     card.append(prog);
-    card.append(el("p", "steptext", text));
+    card.append(el("p", "steptext", text));  // the full step; read aloud says the short version
   }
 
   if (data.status === "needs_more_info") {
     card.append(block("I need one more detail", el("p", "followup", data.follow_up_question)));
+    card.append(el("p", "hint", "Answer below. Your photo stays attached."));
   }
 
   if (data.status === "summary" && data.summary) card.append(renderSummary(data.summary));
@@ -262,7 +671,6 @@ function renderReply(data) {
   const plain = !diagnosed && !["guided", "needs_more_info", "summary"].includes(data.status);
   if (plain && data.answer) card.append(el("p", "answer", data.answer));
 
-  // A question answered mid-fix keeps the current step visible.
   if (data.status !== "guided" && data.step) {
     card.append(block(`Still on step ${data.step.number} of ${data.step.total}`, data.step.text));
   }
@@ -282,35 +690,24 @@ function renderReply(data) {
   }
 
   if (data.source_doc) card.append(el("div", "source", "Source: " + data.source_doc));
-
-  const actions = (data.actions || []).filter(a => ACTION_LABEL[a]);
-  if (actions.length) {
-    const row = el("div", "actions");
-    for (const a of actions) {
-      const b = el("button", "reply" + (a === "repeat" || a === "summary" ? " secondary" : ""), ACTION_LABEL[a]);
-      b.type = "button";
-      b.addEventListener("click", () => send(a));
-      row.append(b);
-    }
-    card.append(row);
-  }
-
-  const speak = el("button", "ghost speak", "Read aloud");
-  speak.type = "button";
-  const spoken = data.answer + (data.ai_suggestion ? " AI suggestion, not from official guides: " + data.ai_suggestion : "");
-  speak.addEventListener("click", () => {
-    speechSynthesis.cancel();
-    speechSynthesis.speak(new SpeechSynthesisUtterance(spoken));
-  });
-  card.append(speak);
+  card.append(speakButton(data));
   return card;
+}
+
+function speakButton(data) {
+  const b = el("button", "speak");
+  b.type = "button";
+  b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+  b.append("Read aloud");
+  b.addEventListener("click", () => { unlockSpeech(); speak(spokenText(data)); });
+  return b;
 }
 
 function renderSummary(s) {
   const wrap = el("div", "summary");
   const head = el("p");
   head.append(el("span", "diag", s.problem));
-  if (s.confidence) head.append(el("span", "badge " + s.confidence, s.confidence + " confidence"));
+  if (s.confidence) head.append(confidence(s.confidence));
   wrap.append(block("Problem", head));
   if (s.tried.length) {
     const ul = el("ul");
