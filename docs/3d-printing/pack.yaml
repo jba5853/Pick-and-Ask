@@ -3,3 +3,34 @@ description: Troubleshooting common FDM 3D printer problems and loading or unloa
 escalation: makerspace staff
 safety_message: Stop the print and step back. The nozzle and bed are hot enough to burn you, so don't touch them. If you see smoke, smell burning or notice sparks or damaged wires, switch the printer off at the power switch if it is safe to reach and tell makerspace staff right away.
 mode: diagnose
+# Backstop for staff-only content: any model-written text (answers, AI suggestions, transitions)
+# containing one of these phrases is replaced with a hand-off to staff. Case-insensitive.
+staff_only_terms:
+  - cold pull
+  - heat gun
+  - pliers
+  - needle
+  - acupuncture
+  - wire through
+  - 260 °C
+  - 270 °C
+  - 280 °C
+  - idler
+  - set screw
+  - grub screw
+  - allen key
+  - torx
+  - belt tension
+  - tighten the belt
+  - live adjust z
+  - first layer calibration
+  - nozzle height
+  - extruder gears
+  - clean the gears
+  - remove the cover
+  - take apart
+  - disassemble
+  - touch the nozzle
+  - touch the hotend
+  - raise the bed temperature
+  - increase the bed temperature

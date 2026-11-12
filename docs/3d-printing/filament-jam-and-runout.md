@@ -22,6 +22,6 @@ The printer couldn't finish loading in time, usually because of a jam, filament 
 2. Cut the end of the filament at a clean 45° angle so it feeds easily.
 3. Unload and reload the filament from the printer's Filament menu.
 4. If no plastic comes out of the nozzle when the printer asks whether the color is right, push the filament gently toward the extruder and choose Retry.
-5. Check the extruder gears and filament sensor area for debris or ground-up plastic.
-6. Make sure the filament sensor is clean. If loading still fails, recalibrate it (on Prusa printers: LCD Menu, Control, Calibrations & Tests, Filament sensor calibration).
+5. Check the extruder gears and filament sensor area for debris or ground-up plastic. {staff_only: true}
+6. Make sure the filament sensor is clean. If loading still fails, recalibrate it (on Prusa printers: LCD Menu, Control, Calibrations & Tests, Filament sensor calibration). {staff_only: true}
 7. If the nozzle is blocked, see clogged-nozzle.md.

@@ -5,90 +5,112 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Point and Ask</title>
 <style>
-  :root { --bg: #f6f7f9; --card: #fff; --text: #1b1f24; --muted: #5f6b7a; --accent: #1e407c; --warn-bg: #fff4e5; --warn: #8a4b00; --ok-bg: #eaf3ff; --border: #d8dde3; --ask-bg: #f1ecff; --ask: #4b2a99; --hi: #1f7a3a; --med: #8a6100; --lo: #a3332b; --ai-bg: #fafafa; }
+  :root { --bg: #f6f7f9; --card: #fff; --text: #1b1f24; --muted: #5f6b7a; --accent: #1e407c; --warn-bg: #fff4e5; --warn: #8a4b00; --ok-bg: #eaf3ff; --border: #d8dde3; --ask-bg: #f1ecff; --ask: #4b2a99; --hi: #1f7a3a; --med: #8a6100; --lo: #a3332b; --ai-bg: #fafafa; --good-bg: #e9f7ee; --user-bg: #1e407c; --user-text: #fff; }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #14171b; --card: #1d2228; --text: #e8ebef; --muted: #9aa5b1; --accent: #8fb4ff; --warn-bg: #3a2a12; --warn: #ffc77a; --ok-bg: #1b2a40; --border: #333b44; --ask-bg: #2a2240; --ask: #c9b5ff; --hi: #6fd38f; --med: #f2c14e; --lo: #ff8a80; --ai-bg: #22272e; }
+    :root { --bg: #14171b; --card: #1d2228; --text: #e8ebef; --muted: #9aa5b1; --accent: #8fb4ff; --warn-bg: #3a2a12; --warn: #ffc77a; --ok-bg: #1b2a40; --border: #333b44; --ask-bg: #2a2240; --ask: #c9b5ff; --hi: #6fd38f; --med: #f2c14e; --lo: #ff8a80; --ai-bg: #22272e; --good-bg: #17301f; --user-bg: #2c4a80; --user-text: #fff; }
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-  main { max-width: 560px; margin: 0 auto; padding: 24px 16px 48px; }
+  main { max-width: 600px; margin: 0 auto; padding: 24px 16px 48px; }
   h1 { margin: 0 0 4px; font-size: 1.6rem; }
-  .sub { margin: 0 0 20px; color: var(--muted); }
-  form, .result { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
-  label { display: block; font-weight: 600; margin: 12px 0 6px; }
-  label:first-child { margin-top: 0; }
+  .sub { margin: 0 0 16px; color: var(--muted); }
+  .bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .bar select { flex: 1 1 180px; }
   select, textarea, input[type=file] { width: 100%; font: inherit; color: inherit; }
-  select, textarea { padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }
-  textarea { min-height: 70px; resize: vertical; }
-  #preview { display: none; max-width: 100%; max-height: 260px; margin-top: 10px; border-radius: 8px; }
-  button { margin-top: 16px; padding: 10px 18px; font: inherit; font-weight: 600; border: 0; border-radius: 8px; background: var(--accent); color: var(--card); cursor: pointer; }
-  button:disabled { opacity: .6; cursor: wait; }
-  .result { display: none; margin-top: 16px; }
-  .result.answered { background: var(--ok-bg); }
-  .result.escalate { background: var(--warn-bg); }
-  .result.escalate .tag { color: var(--warn); }
+  select, textarea { padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); }
+  textarea { min-height: 64px; resize: vertical; background: var(--bg); }
+  label { display: block; font-weight: 600; margin: 10px 0 6px; }
+  label:first-child { margin-top: 0; }
+  button { font: inherit; font-weight: 600; border: 0; border-radius: 8px; cursor: pointer; }
+  button:disabled { opacity: .55; cursor: default; }
+  .primary { margin-top: 12px; padding: 10px 18px; background: var(--accent); color: var(--card); }
+  .ghost { padding: 7px 12px; background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  form { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  #preview { display: none; max-width: 100%; max-height: 200px; margin-top: 8px; border-radius: 8px; }
+  #thread { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+  .user { align-self: flex-end; max-width: 85%; background: var(--user-bg); color: var(--user-text); padding: 8px 12px; border-radius: 12px 12px 2px 12px; }
+  .user img { display: block; max-width: 180px; max-height: 140px; border-radius: 8px; margin-bottom: 6px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .card.answered, .card.guided { background: var(--ok-bg); }
+  .card.resolved { background: var(--good-bg); }
+  .card.escalate { background: var(--warn-bg); }
+  .card.needs_more_info { background: var(--ask-bg); }
   .tag { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
-  #answer { margin: 6px 0; font-size: 1.1rem; }
-  #source { color: var(--muted); font-size: .9rem; }
-  .result.needs_more_info { background: var(--ask-bg); }
-  .result.needs_more_info .tag { color: var(--ask); }
-  .block { margin-top: 12px; }
-  .block[hidden] { display: none; }
-  .label { font-size: .8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .card.escalate .tag { color: var(--warn); }
+  .card.needs_more_info .tag { color: var(--ask); }
+  .card.resolved .tag { color: var(--hi); }
+  .block { margin-top: 10px; }
+  .label { font-size: .78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
   .block p { margin: 2px 0 0; }
-  #diagnosis { font-size: 1.15rem; font-weight: 700; }
-  .badge { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; font-size: .75rem; font-weight: 700; vertical-align: middle; }
-  .badge.high { color: var(--hi); } .badge.medium { color: var(--med); } .badge.low { color: var(--lo); }
-  #steps { margin: 4px 0 0; padding-left: 1.4em; }
-  #steps li { margin: 3px 0; }
-  #followup { margin: 4px 0 0; font-size: 1.15rem; font-weight: 700; color: var(--ask); }
-  .hint { color: var(--muted); font-size: .9rem; }
+  .diag { font-size: 1.15rem; font-weight: 700; }
+  .badge { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; font-size: .72rem; font-weight: 700; vertical-align: middle; }
+  .badge.high { color: var(--hi); } .badge.medium { color: var(--med); } .badge.low { color: var(--lo); } .badge.staff { color: var(--warn); }
+  ol.steps { margin: 4px 0 0; padding-left: 1.4em; }
+  ol.steps li { margin: 3px 0; }
+  ol.steps li.staff { color: var(--muted); font-style: italic; }
+  .progress { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-weight: 700; }
+  .track { flex: 1; height: 8px; border-radius: 999px; background: var(--border); overflow: hidden; }
+  .fill { height: 100%; background: var(--accent); }
+  .steptext { margin: 8px 0 0; font-size: 1.15rem; font-weight: 600; }
+  .followup { margin: 4px 0 0; font-size: 1.15rem; font-weight: 700; color: var(--ask); }
+  .answer { margin: 6px 0 0; font-size: 1.05rem; }
   .ai { padding: 10px 12px; border: 1px dashed var(--border); border-radius: 8px; background: var(--ai-bg); }
   .ai .label { color: var(--warn); }
-  #pending { display: none; margin-top: 6px; font-size: .9rem; color: var(--ask); }
-  .speak { margin-top: 8px; background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 6px 12px; }
+  .note { padding: 10px 12px; border-left: 3px solid var(--warn); background: var(--card); border-radius: 4px; font-size: .95rem; }
+  .source { color: var(--muted); font-size: .88rem; margin-top: 8px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .actions .reply { padding: 8px 14px; background: var(--accent); color: var(--card); }
+  .actions .reply.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  .speak { margin-top: 10px; padding: 5px 10px; font-size: .9rem; }
+  .summary ul { margin: 4px 0 0; padding-left: 1.2em; }
+  .thinking { color: var(--muted); font-style: italic; }
 </style>
 </head>
 <body>
 <main>
   <h1>Point and Ask</h1>
-  <p class="sub">Upload a photo, ask a question, get an answer from our own guides.</p>
+  <p class="sub">Show a photo, describe what's wrong, and work through the fix together.</p>
+
+  <div class="bar">
+    <select id="pack" aria-label="Knowledge pack"></select>
+    <button class="ghost" id="summaryBtn" type="button" hidden>Summary</button>
+    <button class="ghost" id="newBtn" type="button">New conversation</button>
+  </div>
+
+  <section id="thread" aria-live="polite"></section>
 
   <form id="form">
-    <label for="pack">Knowledge pack</label>
-    <select id="pack" name="pack"></select>
-
-    <label for="photo">Photo</label>
+    <label for="photo" id="photoLabel">Photo</label>
     <input id="photo" name="photo" type="file" accept="image/*,.heic,.heif">
     <img id="preview" alt="Photo preview">
 
-    <label for="question">Question</label>
-    <textarea id="question" name="question" required placeholder="What do I do here?"></textarea>
-    <div id="pending"></div>
+    <label for="question">Message</label>
+    <textarea id="question" name="question" placeholder="What do I do here?"></textarea>
 
-    <button id="submit" type="submit">Ask</button>
+    <button class="primary" id="submit" type="submit">Ask</button>
   </form>
-
-  <section id="result" class="result" aria-live="polite">
-    <div class="tag" id="tag"></div>
-    <div class="block" id="obsBlock" hidden><div class="label">What I see</div><p id="observation"></p></div>
-    <div class="block" id="diagBlock" hidden><div class="label">Likely problem</div><p><span id="diagnosis"></span><span class="badge" id="confidence"></span></p></div>
-    <div class="block" id="stepsBlock" hidden><div class="label">How to fix it</div><ol id="steps"></ol></div>
-    <div class="block" id="followBlock" hidden><div class="label">I need one more detail</div><p id="followup"></p><p class="hint">Type your answer in the question box and press Ask. Your photo stays attached.</p></div>
-    <p id="answer"></p>
-    <div class="block ai" id="aiBlock" hidden><div class="label">AI suggestion (not from official guides)</div><p id="aiText"></p></div>
-    <div class="block" id="source"></div>
-    <button class="speak" id="speak" type="button">Read aloud</button>
-  </section>
 </main>
 
 <script>
 const $ = (id) => document.getElementById(id);
 const PLACEHOLDER = { answer: "What do I do here?", diagnose: "What's wrong with my print?" };
+const ACTION_LABEL = { walkthrough: "Walk me through it", done: "Done", failed: "Didn't work", repeat: "Show me again", summary: "Summary" };
 const modes = {};
-let pending = null;   // { question, followUp } while a clarifying question is open
-let spoken = "";      // short text for Read aloud
-let lastSent = "";    // the full question text sent last time
+let sessionId = newId();
+let busy = false;
+
+function newId() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  // randomUUID needs HTTPS; getRandomValues also works over plain http on the local network.
+  return Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, "0")).join("");
+}
+
+function el(tag, cls, text) {
+  const node = document.createElement(tag);
+  if (cls) node.className = cls;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
 
 fetch("/packs").then(r => r.json()).then(packs => {
   for (const p of packs) {
@@ -98,23 +120,28 @@ fetch("/packs").then(r => r.json()).then(packs => {
     $("pack").add(opt);
   }
   if (modes["ai-arcade"]) $("pack").value = "ai-arcade";  // keep the original default pack
-  updatePlaceholder();
+  packChanged();
 });
 
-function updatePlaceholder() {
-  $("question").placeholder = PLACEHOLDER[modes[$("pack").value]] || PLACEHOLDER.answer;
+function packChanged() {
+  const mode = modes[$("pack").value] || "answer";
+  $("question").placeholder = PLACEHOLDER[mode];
+  $("summaryBtn").hidden = mode !== "diagnose";
 }
 
-function setPending(value) {
-  pending = value;
-  $("pending").style.display = value ? "block" : "none";
-  $("pending").textContent = value ? "Answering: " + value.followUp : "";
+function reset() {
+  sessionId = newId();
+  $("thread").replaceChildren();
+  $("photoLabel").textContent = "Photo";
+  $("form").reset();
+  $("preview").style.display = "none";
 }
 
-$("pack").addEventListener("change", () => { updatePlaceholder(); setPending(null); });
+$("pack").addEventListener("change", () => { reset(); packChanged(); });
+$("newBtn").addEventListener("click", reset);
+$("summaryBtn").addEventListener("click", () => send("summary"));
 
 $("photo").addEventListener("change", () => {
-  setPending(null);
   const file = $("photo").files[0];
   const img = $("preview");
   if (!file) { img.style.display = "none"; return; }
@@ -123,81 +150,184 @@ $("photo").addEventListener("change", () => {
   img.onerror = () => { img.style.display = "none"; }; // e.g. HEIC in browsers that can't show it
 });
 
-$("form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  $("submit").disabled = true;
-  $("submit").textContent = "Thinking…";
+$("form").addEventListener("submit", (e) => { e.preventDefault(); send("message"); });
+
+async function send(action) {
+  if (busy) return;
+  const text = $("question").value.trim();
+  const file = $("photo").files[0];
+  if (action === "message" && !text && !file) { $("question").focus(); return; }
+
+  const body = new FormData();
+  body.set("pack", $("pack").value);
+  body.set("session_id", sessionId);
+  body.set("action", action);
+  body.set("question", action === "message" ? text : "");
+  if (file) body.set("photo", file);
+
+  // Show what the visitor sent.
+  const bubble = el("div", "user");
+  if (file && $("preview").style.display === "block") {
+    const img = el("img"); img.src = $("preview").src; img.alt = "Your photo"; bubble.append(img);
+  }
+  bubble.append(document.createTextNode(action === "message" ? (text || "(photo)") : ACTION_LABEL[action]));
+  $("thread").append(bubble);
+  const thinking = el("div", "thinking", "Thinking…");
+  $("thread").append(thinking);
+  thinking.scrollIntoView({ behavior: "smooth", block: "end" });
+
+  setBusy(true);
+  $("question").value = "";
+  if (file) {
+    $("photo").value = "";
+    $("preview").style.display = "none";
+    $("photoLabel").textContent = "Add a new photo (optional; your first one stays attached)";
+  }
   try {
-    const body = new FormData($("form"));
-    if (pending) {
-      // The server is stateless, so send the earlier question and the follow-up along with the reply.
-      body.set("question", `${pending.question}\nYou asked: ${pending.followUp}\nMy answer: ${body.get("question")}`);
-    }
-    lastSent = body.get("question");
     const res = await fetch("/ask", { method: "POST", body });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || "Request failed");
-    show(data);
+    thinking.replaceWith(renderReply(data));
   } catch (err) {
-    show({ status: "escalate", answer: err.message, source_doc: null });
+    thinking.replaceWith(renderReply({ status: "escalate", answer: err.message, actions: [] }));
   } finally {
-    $("submit").disabled = false;
-    $("submit").textContent = "Ask";
-  }
-});
-
-function reveal(id, on) { $(id).hidden = !on; }
-
-function show(data) {
-  const box = $("result");
-  const diagnosed = data.status === "answered" && (data.steps || []).length > 0;
-  box.className = "result " + data.status;
-  box.style.display = "block";
-  $("tag").textContent = { answered: diagnosed ? "Diagnosis" : "Answer", needs_more_info: "Quick question" }[data.status] || "Ask a person";
-
-  $("observation").textContent = data.observation || "";
-  reveal("obsBlock", !!data.observation);
-
-  $("diagnosis").textContent = data.diagnosis || "";
-  $("confidence").textContent = data.confidence ? data.confidence + " confidence" : "";
-  $("confidence").className = "badge " + (data.confidence || "");
-  $("confidence").hidden = !data.confidence;
-  reveal("diagBlock", !!data.diagnosis);
-
-  $("steps").replaceChildren(...(data.steps || []).map(step => {
-    const li = document.createElement("li");
-    li.textContent = step;
-    return li;
-  }));
-  reveal("stepsBlock", diagnosed);
-
-  $("followup").textContent = data.follow_up_question || "";
-  reveal("followBlock", data.status === "needs_more_info");
-
-  // A diagnosis shows its steps instead; the answer text is its short spoken version.
-  $("answer").textContent = diagnosed || data.status === "needs_more_info" ? "" : data.answer;
-  $("answer").hidden = !$("answer").textContent;
-
-  $("aiText").textContent = data.ai_suggestion || "";
-  reveal("aiBlock", !!data.ai_suggestion);
-
-  $("source").textContent = data.source_doc ? "Source: " + data.source_doc : "";
-
-  spoken = data.answer + (data.ai_suggestion ? " AI suggestion, not from official guides: " + data.ai_suggestion : "");
-
-  if (data.status === "needs_more_info") {
-    setPending({ question: lastSent, followUp: data.follow_up_question });
-    $("question").value = "";
-    $("question").focus();
-  } else {
-    setPending(null);
+    setBusy(false);
   }
 }
 
-$("speak").addEventListener("click", () => {
-  speechSynthesis.cancel();
-  speechSynthesis.speak(new SpeechSynthesisUtterance(spoken));
-});
+function setBusy(on) {
+  busy = on;
+  $("submit").disabled = on;
+  $("submit").textContent = on ? "Thinking…" : "Ask";
+  // Only the newest reply's quick-reply buttons stay usable.
+  document.querySelectorAll(".actions button").forEach(b => { b.disabled = true; });
+  if (!on) {
+    const cards = $("thread").querySelectorAll(".card");
+    cards[cards.length - 1]?.querySelectorAll(".actions button").forEach(b => { b.disabled = false; });
+  }
+}
+
+function block(label, child) {
+  const div = el("div", "block");
+  div.append(el("div", "label", label));
+  if (typeof child === "string") div.append(el("p", "", child)); else div.append(child);
+  return div;
+}
+
+function renderReply(data) {
+  const card = el("div", "card " + data.status);
+  const diagnosed = data.status === "answered" && (data.steps || []).length > 0;
+  const tags = { answered: diagnosed ? "Diagnosis" : "Answer", needs_more_info: "Quick question", guided: "Guided fix",
+                 resolved: "Fixed", summary: "Summary", escalate: "Ask a person" };
+  card.append(el("div", "tag", tags[data.status] || "Answer"));
+
+  if (data.observation) card.append(block("What I see", data.observation));
+
+  if (data.diagnosis && (diagnosed || data.status === "needs_more_info")) {
+    const p = el("p");
+    p.append(el("span", "diag", data.diagnosis));
+    if (data.confidence) p.append(el("span", "badge " + data.confidence, data.confidence + " confidence"));
+    card.append(block("Likely problem", p));
+  }
+
+  if (diagnosed) {
+    const ol = el("ol", "steps");
+    for (const s of data.steps) {
+      const li = el("li", s.staff_only ? "staff" : "", s.text);
+      if (s.staff_only) li.append(el("span", "badge staff", "staff only"));
+      ol.append(li);
+    }
+    card.append(block("How to fix it", ol));
+  }
+
+  if (data.status === "guided" && data.step) {
+    const { number, total, text } = data.step;
+    const intro = data.answer.split(` Step ${number} of ${total}:`)[0];
+    if (intro) card.append(el("p", "answer", intro));
+    const prog = el("div", "progress");
+    prog.append(el("span", "", `Step ${number} of ${total}`));
+    const track = el("div", "track"), fill = el("div", "fill");
+    fill.style.width = Math.round(100 * number / total) + "%";
+    track.append(fill); prog.append(track);
+    card.append(prog);
+    card.append(el("p", "steptext", text));
+  }
+
+  if (data.status === "needs_more_info") {
+    card.append(block("I need one more detail", el("p", "followup", data.follow_up_question)));
+  }
+
+  if (data.status === "summary" && data.summary) card.append(renderSummary(data.summary));
+
+  const plain = !diagnosed && !["guided", "needs_more_info", "summary"].includes(data.status);
+  if (plain && data.answer) card.append(el("p", "answer", data.answer));
+
+  // A question answered mid-fix keeps the current step visible.
+  if (data.status !== "guided" && data.step) {
+    card.append(block(`Still on step ${data.step.number} of ${data.step.total}`, data.step.text));
+  }
+
+  if (data.ai_suggestion) {
+    const ai = el("div", "block ai");
+    ai.append(el("div", "label", "AI suggestion (not from official guides)"));
+    ai.append(el("p", "", data.ai_suggestion));
+    card.append(ai);
+  }
+
+  if (data.handoff && data.status === "escalate") {
+    const note = el("div", "block note");
+    note.append(el("div", "label", "Note for staff"));
+    note.append(el("p", "", data.handoff));
+    card.append(note);
+  }
+
+  if (data.source_doc) card.append(el("div", "source", "Source: " + data.source_doc));
+
+  const actions = (data.actions || []).filter(a => ACTION_LABEL[a]);
+  if (actions.length) {
+    const row = el("div", "actions");
+    for (const a of actions) {
+      const b = el("button", "reply" + (a === "repeat" || a === "summary" ? " secondary" : ""), ACTION_LABEL[a]);
+      b.type = "button";
+      b.addEventListener("click", () => send(a));
+      row.append(b);
+    }
+    card.append(row);
+  }
+
+  const speak = el("button", "ghost speak", "Read aloud");
+  speak.type = "button";
+  const spoken = data.answer + (data.ai_suggestion ? " AI suggestion, not from official guides: " + data.ai_suggestion : "");
+  speak.addEventListener("click", () => {
+    speechSynthesis.cancel();
+    speechSynthesis.speak(new SpeechSynthesisUtterance(spoken));
+  });
+  card.append(speak);
+  return card;
+}
+
+function renderSummary(s) {
+  const wrap = el("div", "summary");
+  const head = el("p");
+  head.append(el("span", "diag", s.problem));
+  if (s.confidence) head.append(el("span", "badge " + s.confidence, s.confidence + " confidence"));
+  wrap.append(block("Problem", head));
+  if (s.tried.length) {
+    const ul = el("ul");
+    for (const t of s.tried) ul.append(el("li", "", `${t.step} (${t.outcome})`));
+    wrap.append(block("What was tried", ul));
+  } else {
+    wrap.append(block("What was tried", "Nothing yet."));
+  }
+  if (s.needs_staff.length) {
+    const ul = el("ul");
+    for (const n of s.needs_staff) ul.append(el("li", "", n));
+    wrap.append(block("Needs staff", ul));
+  }
+  wrap.append(block("Outcome", s.outcome));
+  if (s.sources.length) wrap.append(block("Sources", s.sources.join(", ")));
+  return wrap;
+}
 </script>
 </body>
 </html>

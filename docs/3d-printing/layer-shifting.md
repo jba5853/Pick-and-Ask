@@ -14,9 +14,9 @@ Something stopped the print head or bed from moving normally along the X or Y ax
 
 1. Work out which axis shifted (X or Y). The checks are the same for both.
 2. Look for anything blocking the moving parts: cables, the cable bundle, tools or filament in the way.
-3. Check belt tension. A loose belt has slack. A correct one sounds like a low bass note when plucked. On Prusa MK3 printers, check LCD Menu, Support, Belt Status.
-4. Check the set (grub) screws on each motor pulley are tight, with one screw against the flat side of the motor shaft.
-5. Check the rods aren't scratched and the bearings are lubricated.
+3. Check belt tension. A loose belt has slack. A correct one sounds like a low bass note when plucked. On Prusa MK3 printers, check LCD Menu, Support, Belt Status. {staff_only: true}
+4. Check the set (grub) screws on each motor pulley are tight, with one screw against the flat side of the motor shaft. {staff_only: true}
+5. Check the rods aren't scratched and the bearings are lubricated. {staff_only: true}
 6. Use normal mode, not stealth mode, so crash detection stays on.
 7. For large objects, lower the print speed (LCD Menu, Tune, Speed).
 8. If overhangs curl up and get hit by the nozzle, increase part-cooling fan speed.

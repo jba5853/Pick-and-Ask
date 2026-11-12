@@ -14,9 +14,9 @@ Hot plastic shrinks as it cools. If it cools too fast or unevenly, the shrinking
 
 1. Start from the slicer's profile for your material.
 2. Wipe the print sheet with 90% or stronger IPA before each print so it is grease-free.
-3. Lower the nozzle slightly (Live Adjust Z) for better grip, but don't over-squish. PETG and PC can stick too hard and damage the sheet.
+3. Lower the nozzle slightly (Live Adjust Z) for better grip, but don't over-squish. PETG and PC can stick too hard and damage the sheet. {staff_only: true}
 4. Add a brim in the slicer to give the corners more grip.
 5. Keep the room temperature steady. Move the printer away from open windows, fans and air conditioning.
-6. Too much part-cooling fan can lift the whole object. For ABS or PC Blend use only low fan (10–20%). For PLA and PETG, check the fan works and isn't blocked.
+6. Too much part-cooling fan can lift the whole object. For ABS or PC Blend use only low fan (10–20%). For PLA and PETG, check the fan works and isn't blocked. {staff_only: true}
 7. Print more slowly so layers bond better.
 8. For ABS, ASA and PC Blend, use a skirt (draft shield) or an enclosure, and place parts near the bed center. Don't enclose PLA or PETG.

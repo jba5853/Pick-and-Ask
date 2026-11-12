@@ -222,48 +222,43 @@ def test_diagnose_schema_is_strict():
     props = schema["properties"]
     assert schema["additionalProperties"] is False
     assert set(schema["required"]) == set(props) == {
-        "status", "reason", "observation", "diagnosis", "confidence", "steps",
-        "source_doc", "ai_suggestion", "follow_up_question"}
+        "status", "reason", "intent", "observation", "diagnosis", "confidence", "plan_type", "step_ids",
+        "source_doc", "reply", "ruled_out", "next_check", "ai_suggestion", "follow_up_question"}
     assert props["status"]["enum"] == ["answered", "needs_more_info", "escalate"]
     assert props["confidence"]["enum"] == ["high", "medium", "low", ""]
-    assert props["steps"] == {"type": "array", "items": {"type": "string"}}
+    # The model can only point at real steps; it never writes step text.
+    assert props["step_ids"] == {"type": "array", "items": {"type": "string", "enum": list(PRINT.steps)}}
     assert props["source_doc"]["enum"] == sorted(PRINT.docs) + [""]
 
 
 def dreply(**kw):
     base = {
-        "status": "answered", "reason": "none",
+        "status": "answered", "reason": "none", "intent": "new_problem",
         "observation": "Two orange towers with thin strands of plastic between them.",
-        "diagnosis": "Stringing", "confidence": "high",
-        "steps": ["Lower the nozzle temperature by 5-10 °C.", "Turn on Avoid crossing perimeters.", "Try a dry spool."],
-        "source_doc": PRINT_DOC, "ai_suggestion": "", "follow_up_question": "",
+        "diagnosis": "Stringing", "confidence": "high", "plan_type": "fix",
+        "step_ids": ["stringing.md#3", "stringing.md#4", "stringing.md#6"],
+        "source_doc": PRINT_DOC, "reply": "", "ruled_out": "", "next_check": "",
+        "ai_suggestion": "", "follow_up_question": "",
     }
     return json.dumps(base | kw)
 
 
-def test_good_diagnosis():
+def test_good_diagnosis_uses_doc_text_not_model_text():
     r = interpret_diagnose(PRINT, dreply())
     assert (r.status, r.source_doc, r.reason, r.confidence) == ("answered", PRINT_DOC, "none", "high")
     assert r.observation.startswith("Two orange towers")
-    assert len(r.steps) == 3
-    # The spoken version is short: problem, first step, and a pointer to the rest.
-    assert r.answer == "Stringing. First: Lower the nozzle temperature by 5-10 °C. 2 more steps on screen."
-
-
-def test_spoken_summary_adds_missing_period():
-    r = interpret_diagnose(PRINT, dreply(steps=["Clean the nozzle", "Try a dry spool"]))
-    assert r.answer == "Stringing. First: Clean the nozzle. 1 more step on screen."
+    assert [s["text"] for s in r.steps] == [PRINT.steps[i].text for i in ["stringing.md#3", "stringing.md#4", "stringing.md#6"]]
+    assert r.answer == "Stringing. First: Lower the nozzle temperature by 5–10 °C (Filament settings, Nozzle) and see if stringing drops. 2 more steps on screen."
+    assert r.actions == ["walkthrough"]
 
 
 def test_medium_confidence_still_answers():
     assert interpret_diagnose(PRINT, dreply(confidence="medium")).status == "answered"
 
 
-def test_steps_lose_numbering_and_are_capped():
-    steps = [f"{i}. Step number {i}." for i in range(1, 10)] + ["   ", "- Bullet step."]
-    r = interpret_diagnose(PRINT, dreply(steps=steps))
-    assert len(r.steps) == assistant.MAX_STEPS
-    assert r.steps[0] == "Step number 1."
+def test_steps_from_other_docs_are_dropped_from_a_diagnosis():
+    r = interpret_diagnose(PRINT, dreply(step_ids=["warping.md#2", "stringing.md#3"]))
+    assert [s["text"] for s in r.steps] == [PRINT.steps["stringing.md#3"].text]
 
 
 def test_low_confidence_asks_instead_of_fixing():
@@ -274,7 +269,7 @@ def test_low_confidence_asks_instead_of_fixing():
 
 
 def test_needs_more_info_keeps_only_one_question():
-    r = interpret_diagnose(PRINT, dreply(status="needs_more_info", confidence="low", steps=[], source_doc="",
+    r = interpret_diagnose(PRINT, dreply(status="needs_more_info", confidence="low", step_ids=[], source_doc="",
                                          follow_up_question="Is it stringy? Or is it warped? Also, what filament?"))
     assert r.follow_up_question == "Is it stringy?"
 
@@ -285,8 +280,8 @@ def test_needs_more_info_without_question_escalates():
     assert "makerspace staff" in r.answer
 
 
-@pytest.mark.parametrize("bad", [{"source_doc": "invented.md"}, {"source_doc": ""}, {"steps": []},
-                                 {"diagnosis": ""}, {"confidence": ""}])
+@pytest.mark.parametrize("bad", [{"source_doc": "invented.md"}, {"source_doc": ""}, {"step_ids": []},
+                                 {"step_ids": ["invented.md#1"]}, {"diagnosis": ""}, {"confidence": ""}])
 def test_incomplete_diagnosis_escalates_without_ai_text(bad):
     r = interpret_diagnose(PRINT, dreply(ai_suggestion="Just crank the temperature.", **bad))
     assert (r.status, r.reason) == ("escalate", "not_covered")
@@ -294,7 +289,7 @@ def test_incomplete_diagnosis_escalates_without_ai_text(bad):
 
 
 def test_ai_suggestion_kept_separately_when_not_covered():
-    r = interpret_diagnose(PRINT, dreply(status="escalate", reason="not_covered", steps=[], source_doc="",
+    r = interpret_diagnose(PRINT, dreply(status="escalate", reason="not_covered", step_ids=[], source_doc="",
                                          diagnosis="Elephant's foot", confidence="medium",
                                          ai_suggestion="Lower the bed temperature a little. Check the first layer isn't squished."))
     assert (r.status, r.reason, r.source_doc) == ("escalate", "not_covered", None)
@@ -306,8 +301,14 @@ def test_ai_suggestion_kept_separately_when_not_covered():
 
 def test_ai_suggestion_is_trimmed():
     long = "One. Two. Three. Four. Five."
-    r = interpret_diagnose(PRINT, dreply(status="escalate", reason="not_covered", steps=[], source_doc="", ai_suggestion=long))
+    r = interpret_diagnose(PRINT, dreply(status="escalate", reason="not_covered", step_ids=[], source_doc="", ai_suggestion=long))
     assert r.ai_suggestion == "One. Two. Three."
+
+
+def test_ai_suggestion_with_staff_only_content_is_dropped():
+    r = interpret_diagnose(PRINT, dreply(status="escalate", reason="not_covered", step_ids=[], source_doc="",
+                                         ai_suggestion="Do a cold pull with some PLA."))
+    assert r.ai_suggestion == ""
 
 
 @pytest.mark.parametrize("status", ["answered", "escalate", "needs_more_info"])
@@ -325,7 +326,7 @@ def test_personal_data_drops_everything():
 
 
 @pytest.mark.parametrize("bad", [None, "", "not json", "{}", '{"status": "answered"}',
-                                 dreply(steps="Lower the temperature."), dreply(observation=None)])
+                                 dreply(step_ids="stringing.md#3"), dreply(observation=None)])
 def test_unparseable_diagnosis_escalates(bad):
     r = interpret_diagnose(PRINT, bad)
     assert (r.status, r.reason) == ("escalate", "error")
@@ -339,8 +340,10 @@ def test_ask_uses_diagnose_prompt_and_schema(monkeypatch):
     assert r.status == "answered" and r.steps
     assert fake.kwargs["output_config"]["format"]["schema"] == build_diagnose_schema(PRINT)
     assert fake.kwargs["output_config"]["effort"] == "medium"
-    assert "troubleshooting assistant" in fake.kwargs["system"][0]["text"]
-    assert "<document filename=\"stringing.md\">" in fake.kwargs["system"][0]["text"]
+    system = fake.kwargs["system"][0]["text"]
+    assert "troubleshooting assistant" in system
+    assert "1. [stringing.md#1] (STAFF ONLY) Clean old residue off the nozzle before printing." in system
+    assert "{staff_only" not in system  # the raw marker is replaced by the tag
 
 
 def test_answer_mode_unchanged_by_diagnose(monkeypatch):

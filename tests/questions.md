@@ -39,6 +39,20 @@ Cases are based on the general FDM docs in `docs/3d-printing/` (Prusa knowledge 
 | 13 | There's smoke coming from the hot end and it smells like burning plastic. What do I do? | - | escalate | safety |
 | 14 | The bottom layers of my print bulge out wider than the rest, like an elephant's foot. How do I fix that? | - | ai_suggestion | not_covered |
 
+## Conversations: 3d-printing
+
+Multi-turn cases. **Turns** are sent in order, separated by ` → `. `[walkthrough]`, `[done]`, `[failed]`, `[repeat]` and `[summary]` press the matching quick-reply button. Anything else is typed. The photo is attached to the first turn only. Once a conversation is resolved or escalated, the runner skips the remaining turns except a final `[summary]`.
+
+- **Expect** `resolved`: the guided fix ends as fixed. **Target** `<doc>, fixed on step N` means it was fixed on the Nth step shown.
+- **Expect** `escalate`: it ends handed to staff with one of the reasons in **Target** (`staff_only` or `not_fixed`), and with a note for staff saying what was tried.
+- Every conversation must never show a staff-only step to the visitor. A trailing `[summary]` must return the problem, what was tried, the outcome and the sources.
+
+| # | Turns | Photo | Expect | Target |
+|---|-------|-------|--------|--------|
+| C1 | What's wrong with my print? → [walkthrough] → [failed] → [done] → [summary] | 3d/stringing.jpg | resolved | stringing.md, fixed on step 2 |
+| C2 | My prints have gaps and thin, missing lines, and the parts are weak and break apart. What's wrong? → [walkthrough] → [failed] → [failed] → [failed] → [failed] → [summary] | - | escalate | not_fixed or staff_only |
+| C3 | Nothing comes out of the nozzle and the extruder makes a loud clicking noise. → [walkthrough] → That didn't work. The filament is stuck and won't come out. → [failed] → [summary] | - | escalate | staff_only |
+
 ## What to check by hand
 
 The runner checks status, cited doc and escalation reason. Also read the answers it prints:

@@ -16,6 +16,7 @@ from dotenv import load_dotenv  # noqa: E402
 load_dotenv(ROOT / ".env")
 
 from app.assistant import ask, help_line  # noqa: E402
+from app.conversation import BUTTON_TEXT, Session, converse  # noqa: E402
 from app.images import prepare_image  # noqa: E402
 from app.packs import load_pack  # noqa: E402
 
@@ -38,6 +39,91 @@ def load_cases(path: Path = TESTS / "questions.md") -> list[dict]:
         cases.append({"num": num, "pack": pack, "question": question, "photo": None if photo == "-" else photo,
                       "expect": expect, "target": target})
     return cases
+
+
+def load_conversations(path: Path = TESTS / "questions.md") -> list[dict]:
+    """Rows of the '## Conversations: <pack>' tables. Turns are separated by ' → '."""
+    convs, pack = [], None
+    for line in path.read_text().splitlines():
+        heading = re.match(r"##\s*(Pack|Conversations):\s*(\S+)", line)
+        if heading:
+            pack = heading.group(2) if heading.group(1) == "Conversations" else None
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if pack is None or len(cells) != 5 or not re.fullmatch(r"C\d+", cells[0]):
+            continue
+        num, turns, photo, expect, target = cells
+        convs.append({"num": num, "pack": pack, "turns": [t.strip() for t in turns.split("→")],
+                      "photo": None if photo == "-" else photo, "expect": expect, "target": target})
+    return convs
+
+
+def turn_action(turn: str) -> tuple[str, str]:
+    match = re.fullmatch(r"\[(\w+)\]", turn)
+    if match and match.group(1) in BUTTON_TEXT:
+        return match.group(1), ""
+    return "message", turn
+
+
+def run_conversation(conv: dict, pack) -> tuple[list[tuple[str, object]], Session]:
+    session = Session(f"live-{conv['num']}", pack.id, 0.0)
+    image = prepare_image((TESTS / "images" / conv["photo"]).read_bytes()) if conv["photo"] else None
+    results, finished = [], False
+    for i, turn in enumerate(conv["turns"]):
+        action, text = turn_action(turn)
+        if finished and action != "summary":
+            continue  # the conversation already ended
+        result = converse(session, pack, text, action, image if i == 0 else None)
+        results.append((turn, result))
+        if result.status in ("resolved", "escalate") and action != "summary":
+            finished = True
+    return results, session
+
+
+def check_conversation(conv: dict, results: list, session: Session, pack) -> str | None:
+    staff_texts = {s.text for s in pack.steps.values() if s.staff_only}
+    for turn, r in results:
+        shown = [r.answer, r.handoff, *(s["text"] for s in r.steps if not s["staff_only"])]
+        if r.step:
+            shown.append(r.step["text"])
+        if any(t in x for t in staff_texts for x in shown):
+            return f"turn '{turn}' showed a staff-only step"
+    final = next((r for t, r in reversed(results) if t != "[summary]"), None)
+    if conv["expect"] == "resolved":
+        doc, _, n = conv["target"].partition(", fixed on step ")
+        if final.status != "resolved":
+            return f"expected resolved, got {final.status} ({final.reason})"
+        if doc not in session.docs_used:
+            return f"expected the fix to come from {doc}, used {session.docs_used}"
+        if n and (len(session.tried) != int(n) or session.tried[-1][1] != "worked"):
+            return f"expected fixed on step {n}, tried {session.tried}"
+    else:
+        reasons = [t.strip() for t in conv["target"].split(" or ")]
+        if final.status != "escalate" or final.reason not in reasons:
+            return f"expected escalate ({conv['target']}), got {final.status} ({final.reason})"
+        if "Tried:" not in final.handoff or not session.tried:
+            return "escalation should say what was already tried"
+    if conv["turns"][-1] == "[summary]":
+        summary = results[-1][1].summary
+        if not summary or not (summary["problem"] and summary["outcome"] and summary["sources"]):
+            return "summary should give the problem, outcome and sources"
+        if len(summary["tried"]) != len(session.tried):
+            return "summary should list every step tried"
+    return None
+
+
+def describe_turn(r) -> list[str]:
+    if r.status == "summary":
+        s = r.summary
+        tried = "; ".join(f"{t['step']} ({t['outcome']})" for t in s["tried"]) or "nothing"
+        return [f"-> summary | problem: {s['problem']} | tried: {tried} | outcome: {s['outcome']} | "
+                f"sources: {', '.join(s['sources'])}"]
+    lines = describe(r)
+    if r.step:
+        lines.append(f"   [step {r.step['number']} of {r.step['total']}] {r.step['text']}")
+    if r.handoff:
+        lines.append(f"   note for staff: {r.handoff}")
+    return lines
 
 
 def allowed_docs(target: str) -> list[str]:
@@ -94,7 +180,7 @@ def describe(result) -> list[str]:
         lines.append(f"   saw: {result.observation}")
     if result.diagnosis:
         lines.append(f"   diagnosis: {result.diagnosis} ({result.confidence or '-'})")
-    lines += [f"   {i}. {s}" for i, s in enumerate(result.steps, 1)]
+    lines += [f"   {i}. {'[staff only] ' if s['staff_only'] else ''}{s['text']}" for i, s in enumerate(result.steps, 1)]
     if result.follow_up_question:
         lines.append(f"   follow-up: {result.follow_up_question}")
     if result.ai_suggestion:
@@ -108,7 +194,8 @@ def main() -> int:
         return 2
     only = sys.argv[1] if len(sys.argv) > 1 else None
     cases = [c for c in load_cases() if only is None or c["pack"] == only]
-    if not cases:
+    convs = [c for c in load_conversations() if only is None or c["pack"] == only]
+    if not cases and not convs:
         print(f"No cases for pack {only!r}.")
         return 2
     packs, rows = {}, []
@@ -124,6 +211,26 @@ def main() -> int:
         print(f"[{rows[-1][1]}] #{case['num']} ({case['pack']}) {case['question']}")
         for line in describe(result):
             print(f"       {line}")
+        if problem:
+            print(f"       !! {problem}")
+
+    for conv in convs:
+        pack = packs.setdefault(conv["pack"], load_pack(conv["pack"]))
+        results, session = run_conversation(conv, pack)
+        problem = check_conversation(conv, results, session, pack)
+        final = next((r for t, r in reversed(results) if t != "[summary]"), results[-1])
+        got = f"{final.status} / {final.reason}" + (f" after {len(session.tried)} step(s)" if session.tried else "")
+        question = " → ".join(t for t, _ in results)
+        target = conv["target"]
+        rows.append(({"num": conv["num"], "pack": conv["pack"], "question": question, "expect": conv["expect"],
+                      "target": target}, "PASS" if not problem else "FAIL", got))
+        print(f"[{rows[-1][1]}] #{conv['num']} ({conv['pack']}) conversation")
+        for turn, r in results:
+            print(f"     > {turn}")
+            for line in describe_turn(r):
+                print(f"       {line}")
+        reads = [u.get("cache_read", 0) for u in session.usage]
+        print(f"       cache reads per model call: {reads}")
         if problem:
             print(f"       !! {problem}")
 

@@ -7,7 +7,7 @@
 
 1. On the printer screen, open the Filament menu and choose Unload Filament.
 2. Pick the material that is loaded so the nozzle heats to the right temperature, and wait.
-3. When the printer has pushed the filament back, pull it out gently. If it is stuck, open the extruder idler lever and try again.
+3. When the printer has pushed the filament back, pull it out gently. If it is stuck, open the extruder idler lever and try again. {staff_only: true}
 
 ## Loading filament
 
