@@ -16,6 +16,7 @@ from app.assistant import (
     Parsed, Result, call_model, diagnosis_result, escalation, first_sentence, interpret, parse_diagnose,
     plan_ids, trim_sentences, user_content,
 )
+from app import insights, voice
 from app.packs import Pack
 
 log = logging.getLogger("point_and_ask")
@@ -32,6 +33,7 @@ BUTTON_TEXT = {            # what a quick-reply button "says", for the history
     "failed": "That didn't work.",
     "repeat": "Show me that step again.",
     "summary": "Can I get a summary?",
+    "staff": "I'd like to talk to staff.",
 }
 PHOTO_REMOVED = "[An earlier photo was here; it was removed to save space.]"
 
@@ -55,6 +57,12 @@ class Session:
     end_reason: str = ""       # why the session escalated
     docs_used: list[str] = field(default_factory=list)
     usage: list[dict] = field(default_factory=list)      # token usage per model call (cache hits etc.)
+    # Anonymous insights (see app/insights.py). log_id is random and unrelated to the session id.
+    log_id: str = field(default_factory=insights.new_id)
+    first_question: str | None = None
+    uncovered_question: str | None = None
+    had_safety: bool = False
+    answered: bool = False
     lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
 
     def tried_ids(self) -> set[str]:
@@ -282,6 +290,8 @@ def escalate(session: Session, pack: Pack, reason: str) -> Result:
     session.phase, session.end_reason, session.current = "escalated", reason, None
     if reason == "staff_only":
         lead = f"The next step needs {pack.escalation}, so I won't walk you through it."
+    elif reason == "requested":
+        lead = "Okay, let's get you a person."
     else:
         n = len(session.tried)
         lead = f"We've tried {n} step{'s' if n != 1 else ''} and the problem is still there, so it's time to get help."
@@ -391,6 +401,7 @@ def summary(session: Session, pack: Pack) -> Result:
         outcome = f"Fixed{': ' + fixed if fixed else ''}"
     elif session.phase == "escalated":
         outcome = {"staff_only": "Handed to staff: the next step needs staff",
+                   "requested": "Visitor asked for staff",
                    "not_fixed": f"Not fixed after {len(session.tried)} step(s); handed to staff",
                    "safety": "Stopped for a safety concern; staff told"}.get(session.end_reason, "Handed to staff")
     elif session.phase == "guided":
@@ -467,14 +478,59 @@ def converse(session: Session, pack: Pack, text: str, action: str = "message",
     with session.lock:
         result = _turn(session, pack, text.strip(), action, image_jpeg)
         result.session_id = session.id
+        result.voice, result.voice_pause = voice.voice_lines(result, pack)
+        note_insights(session, pack, text.strip() if action == "message" else "", result)
         log.info("session=%s pack=%s action=%s status=%s reason=%s phase=%s failures=%d", session.id[:8],
                  pack.id, action, result.status, result.reason, session.phase, session.failures)
         return result
 
 
+def outcome_of(session: Session) -> str:
+    if session.had_safety:
+        return "safety"
+    if session.phase == "resolved":
+        return "fixed"
+    if session.phase == "escalated":
+        return "escalated"
+    if session.uncovered_question and not session.diagnosis:
+        return "not_covered"
+    if session.answered:
+        return "answered"
+    return "open"
+
+
+def note_insights(session: Session, pack: Pack, typed: str, result: Result) -> None:
+    """Update this conversation's anonymous row. Logging never breaks a conversation."""
+    log_ = insights.get_log()
+    if log_ is None or (not typed and not session.messages):
+        return
+    try:
+        personal = result.reason == "personal_data"
+        if typed and not personal and session.first_question is None:
+            session.first_question = typed
+        if typed and not personal and result.reason == "not_covered":
+            session.uncovered_question = typed
+        if result.reason == "safety":
+            session.had_safety = True
+        if result.status == "answered" and not result.steps:
+            session.answered = True
+        log_.record(session.log_id, pack.id, outcome_of(session), session.first_question, session.diagnosis,
+                    session.confidence, session.uncovered_question, len(session.tried))
+    except Exception as e:  # noqa: BLE001
+        log.warning("insights logging failed: %s", type(e).__name__)
+
+
 def _turn(session: Session, pack: Pack, text: str, action: str, image_jpeg: bytes | None) -> Result:
     text = text or BUTTON_TEXT.get(action, "")
     user_blocks = user_content(text, image_jpeg)
+
+    if action == "staff":  # "get staff": hand off straight away, no model call
+        if pack.mode == "diagnose":
+            r = escalate(session, pack, "requested")
+        else:
+            r = Result("escalate", f"Okay, let's get you a person. Please check with {pack.escalation}.", None, "requested")
+        record(session, user_blocks, history_text(r))
+        return r
 
     if pack.mode != "diagnose":
         raw, error, usage = call_model(pack, build_messages(session, user_blocks))

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Share Point and Ask with your phone over HTTPS using a Cloudflare quick tunnel (no account needed).
+# Share Glance with your phone over HTTPS using a Cloudflare quick tunnel (no account needed).
 #
 # Usage:  scripts/share.sh [pack]      e.g.  scripts/share.sh 3d-printing
 #
@@ -90,7 +90,7 @@ URL="$BASE/"
 [[ -n "$PACK" ]] && URL="$BASE/?pack=$PACK"
 
 echo
-echo "  Point and Ask is live at:"
+echo "  Glance is live at:"
 echo
 echo "    $URL"
 echo
@@ -101,6 +101,9 @@ qr = qrcode.QRCode(border=2)
 qr.add_data(sys.argv[1])
 qr.print_ascii(invert=True)
 PY
+echo
+echo "  WhatsApp webhook (paste in Meta dashboard > WhatsApp > Configuration if you use the glasses link):"
+echo "    $BASE/webhooks/whatsapp"
 echo
 echo "  Scan the QR code with your iPhone camera. Enter the ACCESS_CODE from .env when asked."
 echo "  The tunnel can take ~10 seconds to start answering. Logs: $LOGS"

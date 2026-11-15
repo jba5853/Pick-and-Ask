@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT))
 from dotenv import load_dotenv  # noqa: E402
 
 load_dotenv(ROOT / ".env")
+os.environ["INSIGHTS_DISABLED"] = "1"  # test runs don't belong in the staff insights
 
 from app.assistant import ask, help_line  # noqa: E402
 from app.conversation import BUTTON_TEXT, Session, converse  # noqa: E402

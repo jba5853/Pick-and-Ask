@@ -1,0 +1,587 @@
+{
+  "created": "2026-11-12T06:11:53+00:00",
+  "model": "claude-opus-5-5",
+  "sources": [
+    {
+      "id": "S1",
+      "label": "https://fslaser.com/static/files/resources/manuals/mc-series-co2-flatbed-manual.pdf",
+      "kind": "pdf",
+      "pages": 33,
+      "retrieved": "2026-11-12"
+    }
+  ],
+  "steps": {
+    "machine-wont-start.md": [
+      {
+        "text": "Make sure no material is near the belts, laser head or moving parts, because the laser head moves to the front right when the machine boots up.",
+        "staff_reason": "",
+        "quote": "the laser will move to the front right side of your laser upon boot up",
+        "quote_found": true
+      },
+      {
+        "text": "Insert the ignition key into the ignition switch.",
+        "staff_reason": "",
+        "quote": "Insert the ignition key into the ignition switch (see above).",
+        "quote_found": true
+      },
+      {
+        "text": "Turn the ignition switch to the on position.",
+        "staff_reason": "",
+        "quote": "Turn the ignition switch into the on position.",
+        "quote_found": true
+      },
+      {
+        "text": "With the key in, the laser is started using the emergency stop button. This is the button users most often press without meaning to, so check that it is in the correct position.",
+        "staff_reason": "",
+        "quote": "With the key in the ignition the laser is started using the emergency stop button.",
+        "quote_found": true
+      },
+      {
+        "text": "Main power is controlled by the on/off switch at the back of the machine.",
+        "staff_reason": "Main electrical power switch.",
+        "quote": "POWER ON/OFF is controlled by the switch at the back of the machine.",
+        "quote_found": true
+      },
+      {
+        "text": "Give the machine time to boot up.",
+        "staff_reason": "",
+        "quote": "Give the machine time to boot up.",
+        "quote_found": true
+      },
+      {
+        "text": "If it still won't work, press Diagnose on the control panel to display any current errors and show them to staff.",
+        "staff_reason": "",
+        "quote": "Diagnose - Displays any current errors",
+        "quote_found": true
+      },
+      {
+        "text": "If a fuse has blown, contact Technical Support before replacing anything.",
+        "staff_reason": "Electrical parts and fuses.",
+        "quote": "In case of a blown fuse always contact Technical Support before replacing anything.",
+        "quote_found": true
+      }
+    ],
+    "laser-wont-fire.md": [
+      {
+        "text": "Make sure the lid is closed. Never tamper with the lid safety mechanism. An interlock switches the laser off if the door is opened during operation.",
+        "staff_reason": "",
+        "quote": "Always be sure the lid is closed and never tamper with the lid safety mechanism.",
+        "quote_found": true
+      },
+      {
+        "text": "Check that the key and the power button are in the correct position.",
+        "staff_reason": "",
+        "quote": "Always make sure that the power button is in the correct position.",
+        "quote_found": true
+      },
+      {
+        "text": "Staff: check that the water chiller is correctly connected, powered and pumping. Never fire the laser without it.",
+        "staff_reason": "Cooling system for the laser tube. Firing without it can destroy the tube.",
+        "quote": "Never Fire the Laser without a correctly connected and powered water chiller.",
+        "quote_found": true
+      },
+      {
+        "text": "Staff: check that the chiller tubes are not connected backwards (In to Out, Out to In). The water flow sensor stops the laser firing if they are.",
+        "staff_reason": "Involves the laser tube cooling connections.",
+        "quote": "Your laser will not fire if this is installed backwards thanks to the water flow sensor.",
+        "quote_found": true
+      }
+    ],
+    "before-starting-a-job.md": [
+      {
+        "text": "Inspect the laser cutter for damage or breakage before each use. Do not use it if anything is damaged or defective.",
+        "staff_reason": "",
+        "quote": "Always inspect the laser cutter for damage or breakage before each use.",
+        "quote_found": true
+      },
+      {
+        "text": "Check the MSDS of your material and never cut anything containing PVC.",
+        "staff_reason": "",
+        "quote": "Always check the MSDS properties of the material you are planning on cutting / engraving and never cut any material containing PVC.",
+        "quote_found": true
+      },
+      {
+        "text": "Make sure the lens and optics are clean, using only a microfiber cloth or lens wipes.",
+        "staff_reason": "Lens and optics.",
+        "quote": "Make sure the lens and optics are clean and cleared of debris using a microfiber cloth or lens wipes.",
+        "quote_found": true
+      },
+      {
+        "text": "Check the gantry rails for debris. If particles are present, wipe them clean with a rag.",
+        "staff_reason": "",
+        "quote": "Check your gantry rails for any debris. If any particles are present, wipe it clean with a rag.",
+        "quote_found": true
+      },
+      {
+        "text": "If debris has fallen into the gantry rails, staff should remove the belt to clear it, because it can interfere with the laser output.",
+        "staff_reason": "Repair work on moving parts using tools.",
+        "quote": "we suggest removing the belt to remove the debris as it can interfere with your lasers output.",
+        "quote_found": true
+      },
+      {
+        "text": "Make sure no material is near the belts, laser head or other moving parts.",
+        "staff_reason": "",
+        "quote": "Double check that no material is near your belts, laser head, or any moving components",
+        "quote_found": true
+      },
+      {
+        "text": "Make sure both exhaust fans are on whenever a job is run.",
+        "staff_reason": "",
+        "quote": "require two exhaust fans to be connected and on whenever a job is run on your laser",
+        "quote_found": true
+      },
+      {
+        "text": "Staff: check that the water, air, exhaust and power systems are properly assembled and working normally.",
+        "staff_reason": "Involves the chiller, compressor and electrical systems.",
+        "quote": "Check that your water, air, air exhaust, and power systems are properly assembled and operating normally.",
+        "quote_found": true
+      },
+      {
+        "text": "Always use the air assist, especially when vector cutting.",
+        "staff_reason": "",
+        "quote": "Always use the air assist, especially while vector cutting.",
+        "quote_found": true
+      },
+      {
+        "text": "Keep the area around the machine clear, and never store flammable materials in or near it.",
+        "staff_reason": "",
+        "quote": "Never store any flammable materials in or near the device.",
+        "quote_found": true
+      }
+    ],
+    "which-materials-can-i-cut.md": [
+      {
+        "text": "Never engrave or cut anything containing PVC or vinyl. These materials give off a highly toxic, corrosive vapour.",
+        "staff_reason": "",
+        "quote": "Never engrave or cut any material containing PVC or vinyl under any circumstance.",
+        "quote_found": true
+      },
+      {
+        "text": "Never engrave or cut an unknown material.",
+        "staff_reason": "",
+        "quote": "Never engrave or cut any unknown material.",
+        "quote_found": true
+      },
+      {
+        "text": "Check the manufacturer's MSDS sheet to see how the material reacts to extreme heat.",
+        "staff_reason": "Keyword rule: heat, fire or burns",
+        "quote": "Please refer to the MSDS sheet from the material manufacturer to determine the response of any work material to extreme heat",
+        "quote_found": true
+      },
+      {
+        "text": "Maximum thickness (150W CO2): acrylic 20mm, soft wood 15mm, plywood 12mm, leather 6mm, rubber 6mm.",
+        "staff_reason": "",
+        "quote": "Acrylic 20mm (25/64\u201d) Soft Wood 15mm (19/32\u201d) Plywood 12mm (1/2\u201d) Leather 6mm (1/4\u201d) Rubber 6mm (1/4\u201d)",
+        "quote_found": true
+      },
+      {
+        "text": "Do not stack materials, because stacking increases the risk of flames spreading or the workpiece catching fire.",
+        "staff_reason": "Keyword rule: heat, fire or burns",
+        "quote": "Stacking materials can lead to increased risk of flame propagation or work piece ignition.",
+        "quote_found": true
+      }
+    ],
+    "flames-while-cutting.md": [
+      {
+        "text": "Never leave the laser unattended while it is running.",
+        "staff_reason": "",
+        "quote": "Never leave the laser system unattended during operation.",
+        "quote_found": true
+      },
+      {
+        "text": "Always use the air assist, especially when vector cutting, which has the most potential to create an open flame.",
+        "staff_reason": "Keyword rule: heat, fire or burns",
+        "quote": "Vector cutting with the laser has the most potential to create an open flame",
+        "quote_found": true
+      },
+      {
+        "text": "Stand next to the machine and be ready to turn it off in an emergency.",
+        "staff_reason": "",
+        "quote": "Always stand next to the machine with a fire extinguisher and be ready to turn it off in case of an emergency.",
+        "quote_found": true
+      },
+      {
+        "text": "Staff keep a maintained 5 lb or larger fire extinguisher (halogen or multipurpose dry chemical) near the machine.",
+        "staff_reason": "Fire and fire extinguisher use.",
+        "quote": "Always keep a properly maintained and inspected 5lbs. or larger fire extinguisher on hand.",
+        "quote_found": true
+      },
+      {
+        "text": "Staff remove debris and leftover material from inside the machine to prevent fires.",
+        "staff_reason": "Fire risk and work inside the machine.",
+        "quote": "Debris and left over produced materials within the machine must be removed to prevent a fire.",
+        "quote_found": true
+      }
+    ],
+    "smoke-or-odours-poor-extraction.md": [
+      {
+        "text": "Do not run the laser unless the ventilation system is working properly.",
+        "staff_reason": "",
+        "quote": "Never operate the machine without a properly operating ventilation system.",
+        "quote_found": true
+      },
+      {
+        "text": "Check that both exhaust fans are connected and on.",
+        "staff_reason": "",
+        "quote": "The CO2 Flatbed require two exhaust fans to be connected and on whenever a job is run",
+        "quote_found": true
+      },
+      {
+        "text": "Staff: clean the pre-filters often with a shop vacuum and check them weekly. Replace them when about 70% of the debris remains after cleaning.",
+        "staff_reason": "Filter maintenance with tools.",
+        "quote": "Clean often using a shop vacuum. Check weekly, especially if cutting a lot of wood.",
+        "quote_found": true
+      },
+      {
+        "text": "Staff: clean the HEPA filters as soon as suction seems reduced. Replace them when cleaning no longer restores suction.",
+        "staff_reason": "Filter maintenance with tools.",
+        "quote": "When cleaning does not return optimal suction power, it is time to replace it.",
+        "quote_found": true
+      },
+      {
+        "text": "Staff: clean the activated carbon filters when odours are detected or suction drops. Replace them when cleaning no longer removes the odours.",
+        "staff_reason": "Filter maintenance with tools.",
+        "quote": "When cleaning no longer eliminates detectable odors, replace Activated Carbon Filters.",
+        "quote_found": true
+      },
+      {
+        "text": "Never use the fume extractor without all filters in place.",
+        "staff_reason": "Equipment maintenance.",
+        "quote": "Never use a fume extractor without all filters in place.",
+        "quote_found": true
+      }
+    ],
+    "running-a-job-from-the-control-panel.md": [
+      {
+        "text": "Press File to choose a job file from memory or USB.",
+        "staff_reason": "",
+        "quote": "File - Brings up menu for selecting job files from memory/USB",
+        "quote_found": true
+      },
+      {
+        "text": "Use X+/X- and Y+/Y- to move the laser head and gantry into position.",
+        "staff_reason": "",
+        "quote": "X+/X- - Moves the laser head right and left",
+        "quote_found": true
+      },
+      {
+        "text": "Press Origin to set the starting position for the job.",
+        "staff_reason": "",
+        "quote": "Origin - Sets the starting position for a job file",
+        "quote_found": true
+      },
+      {
+        "text": "Press Frame to trace the outline of the job and check it fits the material.",
+        "staff_reason": "",
+        "quote": "Frame - Will jog around the perimeter of the selected job file",
+        "quote_found": true
+      },
+      {
+        "text": "Press Start-Pause to start or pause the job.",
+        "staff_reason": "",
+        "quote": "Start-Pause - Starts/pauses a job file",
+        "quote_found": true
+      },
+      {
+        "text": "Press Stop to stop and reset the job.",
+        "staff_reason": "",
+        "quote": "Stop - Stops and resets a job file",
+        "quote_found": true
+      }
+    ],
+    "focusing-the-laser.md": [
+      {
+        "text": "Staff: make sure the 4\" (100mm) lens is installed in the upper slot for cutting organic materials.",
+        "staff_reason": "Lenses and optics.",
+        "quote": "used in conjunction with the 4\u201d (100mm) focal lens installed in the upper slot for cutting organic materials",
+        "quote_found": true
+      },
+      {
+        "text": "Use Z+/Z- to raise and lower the cutting head. This works while the machine is in Acrylic Mode.",
+        "staff_reason": "",
+        "quote": "Z+/Z- - Raises and lowers the cutting head (While machine is in Acrylic Mode",
+        "quote_found": true
+      },
+      {
+        "text": "Jog the Z axis down until the focus wedge fits snugly between the material and the nozzle.",
+        "staff_reason": "",
+        "quote": "Focus the laser by jogging the Z axis down until the focus wedge marked prior to shipping is snug between the material and the nozzle.",
+        "quote_found": true
+      }
+    ],
+    "focusing-for-steel.md": [
+      {
+        "text": "Make sure the 2.5\" (63.5mm) lens is installed in the lower slot.",
+        "staff_reason": "Lenses and optics.",
+        "quote": "make sure the 2.5\u201d (63.5mm) lens is installed in the lower slot",
+        "quote_found": true
+      },
+      {
+        "text": "Set the right-side switch to Metal.",
+        "staff_reason": "Machine mode change for metal cutting.",
+        "quote": "the machine is set to \u201cMetal\u201d on the right side switch",
+        "quote_found": true
+      },
+      {
+        "text": "With the steel under the cutting head, press FOCUS on the side panel.",
+        "staff_reason": "Calibration.",
+        "quote": "With the steel under the cutting head press the \u201cFOCUS\u201d button on the machine\u2019s side panel.",
+        "quote_found": true
+      },
+      {
+        "text": "The head jogs down until it touches the steel and then returns, which calibrates the autofocus.",
+        "staff_reason": "Calibration.",
+        "quote": "The laser head will jog down until it touches the steel and then return to a start position.",
+        "quote_found": true
+      }
+    ],
+    "cleaning-lens-and-mirrors.md": [
+      {
+        "text": "Use only a microfiber cloth or lens wipes. Anything else can micro-scratch the optics.",
+        "staff_reason": "Lenses and optics.",
+        "quote": "these are the only recommended options for cleaning lenses as any other option can cause micro scratches in your optics.",
+        "quote_found": true
+      },
+      {
+        "text": "Weekly, use optical-grade lens wipes to clean both sides of the beam combiner, all mirrors, the focus lens and the tube aperture.",
+        "staff_reason": "Mirrors, lenses and laser tube.",
+        "quote": "Use optical-grade lens wipes to clean both sides of the beam combiner, all mirror surfaces, the focus lens, and the tube aperture.",
+        "quote_found": true
+      },
+      {
+        "text": "Clean more often, possibly daily, if materials produce a lot of residue.",
+        "staff_reason": "Optics.",
+        "quote": "Optic surfaces may need to be cleaned more often if cutting materials produce excessive residue (possibly daily).",
+        "quote_found": true
+      }
+    ],
+    "cleaning-the-machine.md": [
+      {
+        "text": "Wipe down the walls of the machine with a clean rag.",
+        "staff_reason": "Work inside the laser enclosure.",
+        "quote": "Wipe down the walls of the machine with a clean rag.",
+        "quote_found": true
+      },
+      {
+        "text": "Clean fallen debris from the debris tray and the machine to reduce fire risk and improve exhaust.",
+        "staff_reason": "Fire risk and work inside the machine.",
+        "quote": "Clean fallen debris from the debris tray and from of the machine to reduce fire risk",
+        "quote_found": true
+      },
+      {
+        "text": "Regularly remove the cutting grid to clear small pieces that have stuck or fallen through.",
+        "staff_reason": "Removing machine parts.",
+        "quote": "Regularly remove the cutting grid to clean any small pieces that have gotten stuck or fallen through.",
+        "quote_found": true
+      },
+      {
+        "text": "Keep the rails, motors and moving parts free of excess material.",
+        "staff_reason": "Moving parts.",
+        "quote": "Keep rails, motors and moving parts free from excess material as it can obscure movement and cause damage.",
+        "quote_found": true
+      },
+      {
+        "text": "Lubricate the wheel track and belts with a light layer of synthetic oil or grease.",
+        "staff_reason": "Chemicals and moving parts.",
+        "quote": "Lubricate the wheel track and belts with a light layer of synthetic oil or grease on top for proper movement.",
+        "quote_found": true
+      }
+    ],
+    "air-bubbles-and-cooling-water.md": [
+      {
+        "text": "Make sure there are no air bubbles in the water jacket of the laser tube.",
+        "staff_reason": "Laser tube.",
+        "quote": "Make sure that there are no air bubbles inside of the water jacket of the laser tube",
+        "quote_found": true
+      },
+      {
+        "text": "Remove the tube access panel to check for air bubbles.",
+        "staff_reason": "Opening panels near the laser tube and high voltage.",
+        "quote": "The tube access panel needs to be removed to check for air bubbles.",
+        "quote_found": true
+      },
+      {
+        "text": "Turn on the water chiller and let it pump water through the tube.",
+        "staff_reason": "Laser cooling system.",
+        "quote": "Turn on the water chiller and allow it to pump water through the laser tube.",
+        "quote_found": true
+      },
+      {
+        "text": "If there are bubbles, squeeze the water inlet pipe and release it to break them free.",
+        "staff_reason": "Laser tube.",
+        "quote": "If there are any air bubbles inside the laser tube, squeeze the water inlet pipe and release to break the bubbles free.",
+        "quote_found": true
+      },
+      {
+        "text": "If bubbles persist, drain the tube completely, turn the chiller back on and check again.",
+        "staff_reason": "Laser tube cooling system.",
+        "quote": "If bubbles persists completely drain the tube of water then turn the chiller back on and check once more.",
+        "quote_found": true
+      },
+      {
+        "text": "Change the cooling water monthly, using only distilled water.",
+        "staff_reason": "Laser tube cooling system.",
+        "quote": "Change water in the cooling system. This will keep your tube safe from unwanted debris, mold or evaporation.",
+        "quote_found": true
+      }
+    ],
+    "electrical-problems.md": [
+      {
+        "text": "Stop using the machine immediately if covers have slipped and bare wire is exposed.",
+        "staff_reason": "Keyword rule: electrical",
+        "quote": "immediately cease operations if the covers ever slip and expose bare wire",
+        "quote_found": true
+      },
+      {
+        "text": "Staff: notify Full Spectrum Laser support.",
+        "staff_reason": "Electrical fault.",
+        "quote": "Please notify Full Spectrum Laser support and immediately cease operations",
+        "quote_found": true
+      },
+      {
+        "text": "Do not open any access panels while the machine is plugged in.",
+        "staff_reason": "Opening panels exposes a potentially lethal power box.",
+        "quote": "Do not open any of the machine\u2019s access panels while the unit is plugged in.",
+        "quote_found": true
+      },
+      {
+        "text": "Never touch electrical areas with hands or tools unless the machine has been disconnected from power for at least one hour.",
+        "staff_reason": "Electrical parts.",
+        "quote": "Never access any electrical areas with hands or tools unless the unit is disconnected from the power for at least one hour.",
+        "quote_found": true
+      },
+      {
+        "text": "Never make or break electrical connections while the machine is on.",
+        "staff_reason": "Electrical parts.",
+        "quote": "Never make or break any electrical connections to the system while the unit is turned on.",
+        "quote_found": true
+      },
+      {
+        "text": "If a fuse blows, contact Technical Support before replacing anything. Never fit a fuse with a higher rating than the installed 20 amp fuse.",
+        "staff_reason": "Electrical parts.",
+        "quote": "In case of a blown fuse always contact Technical Support before replacing anything.",
+        "quote_found": true
+      }
+    ],
+    "testing-laser-output-power.md": [
+      {
+        "text": "Turn the ignition key on, switch the on/off switch on, and let the machine boot.",
+        "staff_reason": "Laser test firing procedure.",
+        "quote": "Turn on the machine by turning the ignition key to the on position and then flip the on/off switch up to the on position.",
+        "quote_found": true
+      },
+      {
+        "text": "Turn on the water chiller and clear any air bubbles in the tube.",
+        "staff_reason": "Laser tube cooling.",
+        "quote": "Turn on the water chiller and allow it to pump water through the laser tube.",
+        "quote_found": true
+      },
+      {
+        "text": "Move the laser head to the centre of the work area with no material under it.",
+        "staff_reason": "Laser test firing.",
+        "quote": "position the laser head into the center of the work area using the user interface with no material underneath it.",
+        "quote_found": true
+      },
+      {
+        "text": "Set Max Power and Min Power for Tube 1 to 98%, and turn the mA knob fully right.",
+        "staff_reason": "Laser power settings.",
+        "quote": "ensure that the mA knob on the right side of the machine is turned all the way to the right for full power output.",
+        "quote_found": true
+      },
+      {
+        "text": "Press and hold Pulse and read the mA gauge. A reading of 28-32 mA means the laser is firing at full power.",
+        "staff_reason": "Firing the laser at full power.",
+        "quote": "you should see a mA output in between 28 - 32mA. That means the machine is firing at full power.",
+        "quote_found": true
+      }
+    ],
+    "checking-mirror-alignment.md": [
+      {
+        "text": "Place thermal tape over mirror 5 at the laser head and press the edges to see the mirror port outline.",
+        "staff_reason": "Beam alignment.",
+        "quote": "Place a piece of thermal tape over mirror 5 located at the laser head",
+        "quote_found": true
+      },
+      {
+        "text": "Jog the laser head all the way to the left.",
+        "staff_reason": "Beam alignment.",
+        "quote": "Jog the laser head all the way to the left.",
+        "quote_found": true
+      },
+      {
+        "text": "Set Min and Max Power to 2% and turn the mA knob fully left.",
+        "staff_reason": "Laser power settings.",
+        "quote": "From there turn the mA knob on the right side of the machine fully to the left.",
+        "quote_found": true
+      },
+      {
+        "text": "Press Pulse quickly to test fire. If no mark appears, turn the mA knob up slowly between fires, but never so strong that the paper catches fire.",
+        "staff_reason": "Firing the laser, fire risk.",
+        "quote": "Main goal is to ensure the test fires are not so strong that the thermal paper catches fire.",
+        "quote_found": true
+      },
+      {
+        "text": "If the mark is not centred, open the right tube compartment and adjust mirror 2 until it is, then lock the nuts.",
+        "staff_reason": "Mirrors and opening compartments.",
+        "quote": "Loosen the lock nut screws on the back of mirror 2 and adjust the mirror alignment screws",
+        "quote_found": true
+      },
+      {
+        "text": "Jog the head all the way to the right and test fire again.",
+        "staff_reason": "Beam alignment.",
+        "quote": "Now jog the laser head all the way to the right.",
+        "quote_found": true
+      },
+      {
+        "text": "If the second mark is more than 1-2mm from the first, open the left compartment and adjust mirror 4 until the marks overlap.",
+        "staff_reason": "Mirrors and opening compartments.",
+        "quote": "Loosen the lock nuts on the back of mirror 4 and adjust the mirror alignment screws",
+        "quote_found": true
+      },
+      {
+        "text": "Lower the head with Z-, put thermal paper on the air cone port and test fire. If the dot touches the edge, adjust mirror 5.",
+        "staff_reason": "Mirrors and lens alignment.",
+        "quote": "If the test fire dot is hitting within the air cone perimeter without contacting the sides of the air cone frame",
+        "quote_found": true
+      },
+      {
+        "text": "Tighten all lock nuts that were loosened.",
+        "staff_reason": "Beam alignment with tools.",
+        "quote": "Be sure to tighten all lock nuts that were loosened to correct mirror alignment",
+        "quote_found": true
+      }
+    ],
+    "preparing-a-file-in-metalcut.md": [
+      {
+        "text": "Open MetalCut from the computer desktop.",
+        "staff_reason": "",
+        "quote": "open the MetalCut software now present on the computer desktop.",
+        "quote_found": true
+      },
+      {
+        "text": "Use Import to bring a compatible file into the workspace.",
+        "staff_reason": "",
+        "quote": "Import - Imports compatible files into the workspace",
+        "quote_found": true
+      },
+      {
+        "text": "Use Data Check to look for problems in the vector drawing.",
+        "staff_reason": "",
+        "quote": "Data Check - Searches for possible issues in vector file drawing",
+        "quote_found": true
+      },
+      {
+        "text": "Use Preview to simulate cutting the job.",
+        "staff_reason": "",
+        "quote": "Preview - Simulates cutting the job file",
+        "quote_found": true
+      },
+      {
+        "text": "Save your workspace as an RLD file.",
+        "staff_reason": "",
+        "quote": "Save - Saves your workspace as a RLD file",
+        "quote_found": true
+      }
+    ]
+  }
+}

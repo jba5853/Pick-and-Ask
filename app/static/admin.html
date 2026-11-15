@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glance Staff</title>
+<style>
+  :root {
+    --bg: #f3f4f7; --surface: #fff; --surface-2: #f7f8fa; --text: #15191e; --muted: #5d6876; --border: #dfe3e8;
+    --accent: #1e407c; --accent-text: #fff; --accent-soft: #e8eef8;
+    --review: #8a4b00; --review-bg: #fff4e0; --review-border: #f3cf8e;
+    --danger: #b42318; --danger-bg: #fdecea; --good: #1c7a3f; --good-bg: #e8f6ed;
+    --shadow: 0 1px 2px rgba(16,24,40,.06), 0 4px 16px rgba(16,24,40,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1215; --surface: #191d22; --surface-2: #20252b; --text: #e9ecf0; --muted: #9aa4b0; --border: #2e353d;
+      --accent: #8fb4ff; --accent-text: #0f1215; --accent-soft: #1d2a40;
+      --review: #ffc46b; --review-bg: #33250f; --review-border: #5e4519;
+      --danger: #ff8a80; --danger-bg: #3a1714; --good: #6fd492; --good-bg: #15301f; --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  [hidden] { display: none !important; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 20px 16px 60px; }
+  header { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+  header h1 { margin: 0; font-size: 1.35rem; flex: 1; }
+  header h1 span { color: var(--muted); font-weight: 500; }
+  nav a { padding: 8px 14px; border-radius: 10px; color: var(--accent); text-decoration: none; font-weight: 600; }
+  nav a.on { background: var(--accent-soft); }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; box-shadow: var(--shadow); margin-bottom: 18px; }
+  .panel h2 { margin: 0 0 4px; font-size: 1.1rem; }
+  .sub { margin: 0 0 14px; color: var(--muted); }
+  label { display: block; font-weight: 600; margin: 12px 0 6px; font-size: .95rem; }
+  input[type=text], input[type=password], select, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); }
+  textarea { resize: vertical; }
+  textarea.doc { min-height: 280px; font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px) { .row { grid-template-columns: 1fr; } }
+  .btn { display: inline-flex; align-items: center; gap: 6px; min-height: 42px; padding: 8px 16px; border: 0; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 650; cursor: pointer; }
+  .btn.secondary { background: var(--accent-soft); color: var(--accent); }
+  .btn.danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
+  .status { color: var(--muted); }
+  .error { color: var(--danger); }
+  .ok { color: var(--good); }
+  .spinner { display: inline-block; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--accent); animation: spin .8s linear infinite; vertical-align: -3px; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); }
+  .item .grow { flex: 1; min-width: 0; }
+  .item .name { font-weight: 650; }
+  .item .meta { color: var(--muted); font-size: .88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .badge { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: .78rem; font-weight: 700; white-space: nowrap; }
+  .badge.review { color: var(--review); background: var(--review-bg); border: 1px solid var(--review-border); }
+  .badge.clear { color: var(--good); background: var(--good-bg); }
+  .badge.staff { color: var(--review); border: 1px solid var(--review-border); }
+  .issues { background: var(--review-bg); border: 1px solid var(--review-border); color: var(--text); border-radius: 12px; padding: 12px 16px; margin-bottom: 18px; }
+  .issues strong { color: var(--review); }
+  .issues ul { margin: 6px 0 0; padding-left: 1.2em; max-height: 180px; overflow: auto; font-size: .9rem; }
+  .issues.done { background: var(--good-bg); border-color: transparent; }
+  .issues.done strong { color: var(--good); }
+  details.doc { border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); margin-bottom: 10px; }
+  details.doc > summary { display: flex; gap: 10px; align-items: center; padding: 12px 14px; cursor: pointer; font-weight: 600; list-style: none; }
+  details.doc > summary::-webkit-details-marker { display: none; }
+  details.doc > summary::before { content: "▸"; color: var(--muted); transition: transform .15s; }
+  details.doc[open] > summary::before { transform: rotate(90deg); }
+  details.doc > summary .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .doc-body { padding: 0 14px 14px; }
+  .steps { margin: 6px 0 12px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .steps li { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); }
+  .steps .num { font-weight: 700; color: var(--muted); min-width: 1.5em; }
+  .steps .txt { flex: 1; }
+  .steps .why { display: block; color: var(--muted); font-size: .82rem; }
+  .toggle { display: flex; align-items: center; gap: 6px; font-size: .85rem; color: var(--muted); white-space: nowrap; cursor: pointer; margin: 0; font-weight: 600; }
+  .toggle input { width: 18px; height: 18px; accent-color: var(--review); }
+  .sources { color: var(--muted); font-size: .9rem; margin: 4px 0 0; word-break: break-all; }
+  .back { background: none; border: 0; color: var(--accent); font-weight: 600; cursor: pointer; padding: 0; margin-bottom: 10px; }
+  dialog { border: 0; border-radius: 18px; padding: 24px; width: min(92vw, 380px); background: var(--surface); color: var(--text); box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+  dialog::backdrop { background: rgba(10,14,20,.55); }
+  dialog h2 { margin: 0 0 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Glance <span>· Staff</span></h1>
+    <nav><a href="/admin" class="on">Packs</a><a href="/admin/insights">Insights</a><a href="/">Visitor app</a></nav>
+  </header>
+
+  <div id="home">
+    <section class="panel">
+      <h2>Build a pack from official docs</h2>
+      <p class="sub">Upload manuals (PDF) or paste links to official guides. The AI drafts short topic docs with numbered steps taken from the source. Nothing goes live until you review and publish it.</p>
+      <form id="buildForm">
+        <div class="row">
+          <div>
+            <label for="slug">Pack id</label>
+            <input type="text" id="slug" placeholder="laser-cutter" pattern="[a-z0-9][a-z0-9\-]{1,39}" required>
+          </div>
+          <div>
+            <label for="files">PDF manuals</label>
+            <input type="file" id="files" accept="application/pdf,.pdf" multiple>
+          </div>
+        </div>
+        <label for="urls">Links to official manuals or help pages (one per line)</label>
+        <textarea id="urls" rows="3" placeholder="https://manufacturer.example.com/manual.pdf"></textarea>
+        <div class="actions">
+          <button class="btn" type="submit" id="buildBtn">Build draft</button>
+          <span class="status" id="buildStatus"></span>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Drafts waiting for review</h2>
+      <p class="sub">Drafts live in <code>docs/_drafts/</code> and are invisible to visitors.</p>
+      <div class="list" id="drafts"><p class="status">Loading…</p></div>
+    </section>
+  </div>
+
+  <div id="review" hidden>
+    <button class="back" type="button" id="backBtn">← All drafts</button>
+    <section class="panel">
+      <h2 id="rvTitle"></h2>
+      <p class="sources" id="rvSources"></p>
+    </section>
+    <div class="issues" id="rvIssues"></div>
+
+    <section class="panel">
+      <h2>Pack settings</h2>
+      <form id="packForm">
+        <div class="row">
+          <div><label for="pName">Name</label><input type="text" id="pName"></div>
+          <div><label for="pMode">Mode</label>
+            <select id="pMode"><option value="diagnose">diagnose (troubleshooting with guided fixes)</option><option value="answer">answer (questions from the docs)</option></select>
+          </div>
+        </div>
+        <label for="pDesc">Description</label><input type="text" id="pDesc">
+        <label for="pEsc">Who visitors should ask for help</label><input type="text" id="pEsc">
+        <label for="pSafety">Safety message (shown word for word whenever safety comes up)</label><textarea id="pSafety" rows="3"></textarea>
+        <label class="toggle" id="clearNotesRow" hidden><input type="checkbox" id="clearNotes"> I've dealt with the pack-level REVIEW notes; remove them</label>
+        <div class="actions"><button class="btn secondary" type="submit">Save pack settings</button><span class="status" id="packStatus"></span></div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Docs</h2>
+      <p class="sub">Edit the text, untick staff-only where a visitor can safely do the step, and delete the <code>REVIEW:</code> lines once you've checked them against the source.</p>
+      <div id="rvDocs"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Publish</h2>
+      <p class="sub">Publishing moves the draft into <code>docs/</code>, where visitors can use it straight away.</p>
+      <div class="actions">
+        <button class="btn" type="button" id="publishBtn">Publish pack</button>
+        <button class="btn danger" type="button" id="deleteBtn">Delete draft</button>
+        <span class="status" id="publishStatus"></span>
+      </div>
+    </section>
+  </div>
+</div>
+
+<dialog id="codeDialog">
+  <form id="codeForm">
+    <h2>Staff code</h2>
+    <p class="status">Enter the ADMIN_CODE from .env.</p>
+    <input type="password" id="codeInput" autocomplete="off" required>
+    <div class="actions"><button class="btn" type="submit">Continue</button><span class="error" id="codeError"></span></div>
+  </form>
+</dialog>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; };
+const store = {
+  get() { try { return sessionStorage.getItem("pa-admin") || ""; } catch { return store.mem || ""; } },
+  set(v) { try { sessionStorage.setItem("pa-admin", v); } catch { store.mem = v; } },
+  clear() { try { sessionStorage.removeItem("pa-admin"); } catch { store.mem = ""; } },
+};
+let current = null;  // the draft being reviewed
+
+async function api(path, opts = {}) {
+  const headers = { "X-Admin-Code": store.get(), ...(opts.json ? { "Content-Type": "application/json" } : {}) };
+  const res = await fetch(path, { ...opts, headers, body: opts.json ? JSON.stringify(opts.json) : opts.body });
+  if (res.status === 401) { store.clear(); askCode("Please enter the staff code."); throw new Error("Staff code needed."); }
+  if (res.status === 204) return null;
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || "Something went wrong.");
+  return data;
+}
+
+function askCode(message = "") {
+  $("codeError").textContent = message;
+  if (!$("codeDialog").open) $("codeDialog").showModal();
+}
+$("codeDialog").addEventListener("cancel", (e) => e.preventDefault());
+$("codeForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  store.set($("codeInput").value.trim());
+  try {
+    await api("/admin/api/check", { method: "POST" });
+    $("codeDialog").close();
+    loadDrafts();
+  } catch (err) { $("codeError").textContent = err.message; }
+});
+
+// ---------- home ----------
+
+async function loadDrafts() {
+  let drafts;
+  try { drafts = await api("/admin/api/drafts"); } catch (err) { $("drafts").replaceChildren(el("p", "error", err.message)); return; }
+  if (!drafts.length) { $("drafts").replaceChildren(el("p", "status", "No drafts yet. Build one above.")); return; }
+  $("drafts").replaceChildren(...drafts.map(d => {
+    const item = el("div", "item");
+    const grow = el("div", "grow");
+    grow.append(el("div", "name", `${d.name} (${d.slug})`));
+    grow.append(el("div", "meta", `${d.docs} docs · ${d.sources.join(", ") || "no sources listed"}`));
+    item.append(grow);
+    item.append(el("span", "badge " + (d.review_count ? "review" : "clear"), d.review_count ? `${d.review_count} to review` : "ready"));
+    const btn = el("button", "btn secondary", "Review");
+    btn.type = "button";
+    btn.addEventListener("click", () => openDraft(d.slug));
+    item.append(btn);
+    return item;
+  }));
+}
+
+$("buildForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const body = new FormData();
+  body.set("slug", $("slug").value.trim());
+  body.set("urls", $("urls").value);
+  for (const f of $("files").files) body.append("files", f);
+  $("buildBtn").disabled = true;
+  $("buildStatus").className = "status";
+  $("buildStatus").innerHTML = '<span class="spinner"></span>Reading the documents and drafting docs. This usually takes 1–4 minutes…';
+  try {
+    const r = await api("/admin/api/build", { method: "POST", body });
+    $("buildStatus").className = "ok";
+    $("buildStatus").textContent = `Draft ready: ${r.docs.length} docs, ${r.staff_only_steps} staff-only steps, ${r.review_count} REVIEW notes`
+      + (r.unverified_steps ? ` (${r.unverified_steps} steps whose quote wasn't found in the source).` : ".");
+    $("buildForm").reset();
+    loadDrafts();
+    openDraft(r.slug);
+  } catch (err) {
+    $("buildStatus").className = "error";
+    $("buildStatus").textContent = err.message;
+  } finally {
+    $("buildBtn").disabled = false;
+  }
+});
+
+// ---------- review ----------
+
+async function openDraft(slug) {
+  try { show(await api(`/admin/api/drafts/${slug}`)); } catch (err) { alert(err.message); return; }
+  $("home").hidden = true;
+  $("review").hidden = false;
+  $("publishStatus").textContent = "";
+  scrollTo({ top: 0 });
+}
+
+$("backBtn").addEventListener("click", () => { $("review").hidden = true; $("home").hidden = false; current = null; loadDrafts(); });
+
+function show(d) {
+  current = d;
+  $("rvTitle").textContent = `${d.pack.name || d.slug} (${d.slug})`;
+  $("rvSources").textContent = "Sources: " + (d.sources.map(s => `${s.label} (${s.kind}, ${s.pages} page${s.pages === 1 ? "" : "s"}, retrieved ${s.retrieved})`).join("; ") || "none listed");
+
+  const issues = $("rvIssues");
+  issues.className = "issues" + (d.issues.length ? "" : " done");
+  issues.replaceChildren();
+  if (d.issues.length) {
+    issues.append(el("strong", "", `${d.issues.length} REVIEW note${d.issues.length === 1 ? "" : "s"} left. Publishing is locked until they're resolved.`));
+    const ul = el("ul");
+    for (const i of d.issues) ul.append(el("li", "", i));
+    issues.append(ul);
+  } else {
+    issues.append(el("strong", "", "No REVIEW notes left. Check the staff-only ticks, then publish."));
+  }
+
+  if (document.activeElement?.closest?.("#packForm") == null) {
+    $("pName").value = d.pack.name; $("pMode").value = d.pack.mode || "answer";
+    $("pDesc").value = d.pack.description; $("pEsc").value = d.pack.escalation; $("pSafety").value = d.pack.safety_message;
+  }
+  $("clearNotesRow").hidden = !d.pack_notes.length;
+  $("clearNotes").checked = false;
+
+  const open = new Set([...document.querySelectorAll("details.doc[open]")].map(x => x.dataset.name));
+  $("rvDocs").replaceChildren(...d.docs.map(doc => renderDoc(doc, open.has(doc.filename))));
+  $("publishBtn").disabled = d.issues.length > 0;
+}
+
+function renderDoc(doc, isOpen) {
+  const det = el("details", "doc");
+  det.dataset.name = doc.filename;
+  det.open = isOpen;
+  const sum = el("summary");
+  sum.append(el("span", "grow", doc.filename));
+  const staff = doc.steps.filter(s => s.staff_only).length;
+  if (staff) sum.append(el("span", "badge staff", `${staff} staff-only`));
+  sum.append(el("span", "badge " + (doc.review_count ? "review" : "clear"), doc.review_count ? `${doc.review_count} to review` : "checked"));
+  det.append(sum);
+
+  const body = el("div", "doc-body");
+  if (doc.steps.length) {
+    const ul = el("ul", "steps");
+    for (const s of doc.steps) {
+      const li = el("li");
+      li.append(el("span", "num", `${s.number}.`));
+      const txt = el("span", "txt", s.text);
+      if (s.staff_only && s.staff_reason) txt.append(el("span", "why", "Staff-only because: " + s.staff_reason));
+      li.append(txt);
+      const lab = el("label", "toggle");
+      const box = el("input"); box.type = "checkbox"; box.checked = s.staff_only;
+      box.addEventListener("change", async () => {
+        try { show(await api(`/admin/api/drafts/${current.slug}/docs/${doc.filename}/steps/${s.index}/staff_only`, { method: "POST", json: { value: box.checked } })); }
+        catch (err) { alert(err.message); box.checked = !box.checked; }
+      });
+      lab.append(box, "Staff only");
+      li.append(lab);
+      ul.append(li);
+    }
+    body.append(ul);
+  }
+  const ta = el("textarea", "doc");
+  ta.value = doc.text;
+  ta.setAttribute("aria-label", "Doc text for " + doc.filename);
+  body.append(ta);
+  const actions = el("div", "actions");
+  const save = el("button", "btn secondary", "Save doc"); save.type = "button";
+  const del = el("button", "btn danger", "Delete doc"); del.type = "button";
+  const note = el("span", "status");
+  save.addEventListener("click", async () => {
+    try { show(await api(`/admin/api/drafts/${current.slug}/docs/${doc.filename}`, { method: "PUT", json: { text: ta.value } })); }
+    catch (err) { note.className = "error"; note.textContent = err.message; }
+  });
+  del.addEventListener("click", async () => {
+    if (!confirm(`Delete ${doc.filename} from this draft?`)) return;
+    try { show(await api(`/admin/api/drafts/${current.slug}/docs/${doc.filename}`, { method: "DELETE" })); }
+    catch (err) { note.className = "error"; note.textContent = err.message; }
+  });
+  actions.append(save, del, note);
+  body.append(actions);
+  det.append(body);
+  return det;
+}
+
+$("packForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  try {
+    const d = await api(`/admin/api/drafts/${current.slug}/pack`, { method: "PUT", json: {
+      name: $("pName").value, mode: $("pMode").value, description: $("pDesc").value,
+      escalation: $("pEsc").value, safety_message: $("pSafety").value, clear_pack_notes: $("clearNotes").checked } });
+    $("packStatus").className = "ok"; $("packStatus").textContent = "Saved.";
+    document.activeElement?.blur();
+    show(d);
+  } catch (err) { $("packStatus").className = "error"; $("packStatus").textContent = err.message; }
+});
+
+$("publishBtn").addEventListener("click", async () => {
+  if (!confirm(`Publish "${current.pack.name}"? Visitors will be able to use it straight away.`)) return;
+  try {
+    const r = await api(`/admin/api/drafts/${current.slug}/publish`, { method: "POST" });
+    $("publishStatus").className = "ok";
+    $("publishStatus").innerHTML = "";
+    $("publishStatus").append("Published. ");
+    const a = el("a", "", "Open it in the visitor app"); a.href = r.url; $("publishStatus").append(a);
+    $("publishBtn").disabled = true; $("deleteBtn").disabled = true;
+  } catch (err) { $("publishStatus").className = "error"; $("publishStatus").textContent = err.message; }
+});
+
+$("deleteBtn").addEventListener("click", async () => {
+  if (!confirm(`Delete the draft "${current.slug}"? This can't be undone.`)) return;
+  try { await api(`/admin/api/drafts/${current.slug}`, { method: "DELETE" }); $("backBtn").click(); }
+  catch (err) { $("publishStatus").className = "error"; $("publishStatus").textContent = err.message; }
+});
+
+if (store.get()) loadDrafts(); else askCode();
+</script>
+</body>
+</html>

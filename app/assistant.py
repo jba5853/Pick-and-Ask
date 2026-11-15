@@ -52,11 +52,14 @@ class Result:
     summary: dict | None = None      # recap for the Summary button
     actions: list[str] = field(default_factory=list)  # quick replies the page should offer
     session_id: str = ""
+    # Coach mode (hands-free): short utterances to speak, and whether to pause the loop afterwards.
+    voice: list[str] = field(default_factory=list)
+    voice_pause: bool = False
 
 
 # ---------- answer mode (unchanged behavior) ----------
 
-SYSTEM_TEMPLATE = """You are "Point and Ask", a help assistant for {name} at Penn State TLT's AI Commons. {description}
+SYSTEM_TEMPLATE = """You are "Glance", a help assistant for {name} at Penn State TLT's AI Commons. {description}
 
 A visitor sends a photo taken with smart glasses or a phone, plus a question. Answer ONLY from the documents below. Do not use outside knowledge, even if you are confident.
 
@@ -98,7 +101,7 @@ def build_schema(pack: Pack) -> dict:
 
 # ---------- diagnose mode ----------
 
-DIAGNOSE_TEMPLATE = """You are "Point and Ask", a troubleshooting assistant for {name} at Penn State TLT's AI Commons. {description}
+DIAGNOSE_TEMPLATE = """You are "Glance", a troubleshooting assistant for {name} at Penn State TLT's AI Commons. {description}
 
 This is a conversation with a visitor who sends photos taken with smart glasses or a phone. A photo stays relevant for the whole conversation; a newer photo shows how things look now. The latest visitor message may end with a <session_state> block. The app writes that block, not the visitor: it holds the current diagnosis and the progress of a guided fix.
 

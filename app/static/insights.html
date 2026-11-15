@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glance Insights</title>
+<style>
+  :root {
+    --bg: #f3f4f7; --surface: #fff; --surface-2: #f7f8fa; --text: #15191e; --text-2: #3d4652; --muted: #5d6876; --border: #dfe3e8;
+    --grid: #e1e0d9; --accent: #1e407c; --accent-text: #fff; --accent-soft: #e8eef8; --bar: #2f6bd8;
+    --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b; --neutral: #9aa1ab;
+    --demo: #6a3fb5; --demo-bg: #f3edfc; --demo-border: #d7c6f3;
+    --shadow: 0 1px 2px rgba(16,24,40,.06), 0 4px 16px rgba(16,24,40,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1215; --surface: #191d22; --surface-2: #20252b; --text: #e9ecf0; --text-2: #c3cad3; --muted: #9aa4b0; --border: #2e353d;
+      --grid: #2c2c2a; --accent: #8fb4ff; --accent-text: #0f1215; --accent-soft: #1d2a40; --bar: #6f9cf0;
+      --neutral: #7b838d; --demo: #c9adff; --demo-bg: #271d3b; --demo-border: #46336b; --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  button, input, select { font: inherit; color: inherit; }
+  [hidden] { display: none !important; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 20px 16px 60px; }
+  header { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+  header h1 { margin: 0; font-size: 1.35rem; flex: 1; }
+  header h1 span { color: var(--muted); font-weight: 500; }
+  nav a { padding: 8px 14px; border-radius: 10px; color: var(--accent); text-decoration: none; font-weight: 600; }
+  nav a.on { background: var(--accent-soft); }
+  .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  .filters select { min-height: 40px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+  .filters label { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: .92rem; cursor: pointer; }
+  .demo { padding: 10px 14px; border-radius: 12px; background: var(--demo-bg); border: 1px solid var(--demo-border); color: var(--text); margin-bottom: 14px; font-size: .93rem; }
+  .demo strong { color: var(--demo); }
+  .tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 14px; }
+  @media (max-width: 860px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
+  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow); }
+  .tile .k { font-size: .82rem; color: var(--muted); font-weight: 600; }
+  .tile .v { font-size: 1.9rem; font-weight: 750; letter-spacing: -.02em; line-height: 1.2; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .tile .s { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+  .grid2 { display: grid; grid-template-columns: 3fr 2fr; gap: 14px; margin-bottom: 14px; }
+  @media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px; box-shadow: var(--shadow); }
+  .panel h2 { margin: 0 0 2px; font-size: 1.05rem; }
+  .panel .sub { margin: 0 0 12px; color: var(--muted); font-size: .9rem; }
+  .bars { display: flex; flex-direction: column; gap: 10px; }
+  .bar-row { display: grid; grid-template-columns: minmax(110px, 34%) 1fr auto; gap: 10px; align-items: center; }
+  .bar-row .lbl { color: var(--text-2); font-size: .93rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar-row .lbl .ico { display: inline-block; width: 1.2em; font-weight: 800; }
+  .track { position: relative; height: 18px; border-bottom: 1px solid var(--grid); }
+  .fill { position: absolute; left: 0; top: 2px; bottom: 2px; border-radius: 0 4px 4px 0; min-width: 2px; background: var(--bar); }
+  .bar-row:hover .fill { filter: brightness(1.12); }
+  .bar-row .val { font-size: .88rem; color: var(--text-2); font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 7.5em; text-align: right; }
+  .bar-row .val .rate { color: var(--muted); }
+  .empty { color: var(--muted); font-style: italic; }
+  table { width: 100%; border-collapse: collapse; font-size: .93rem; }
+  th { text-align: left; color: var(--muted); font-weight: 600; font-size: .8rem; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  td { padding: 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+  td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--text-2); }
+  td.d { color: var(--muted); white-space: nowrap; }
+  .tip { position: fixed; pointer-events: none; z-index: 10; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; font-size: .85rem; box-shadow: 0 6px 24px rgba(0,0,0,.18); max-width: 280px; }
+  .error { color: var(--critical); }
+  dialog { border: 0; border-radius: 18px; padding: 24px; width: min(92vw, 380px); background: var(--surface); color: var(--text); box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+  dialog::backdrop { background: rgba(10,14,20,.55); }
+  dialog input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); margin: 10px 0; }
+  dialog button { min-height: 42px; padding: 8px 16px; border: 0; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 650; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Glance <span>· Insights</span></h1>
+    <nav><a href="/admin">Packs</a><a href="/admin/insights" class="on">Insights</a><a href="/">Visitor app</a></nav>
+  </header>
+
+  <div class="filters">
+    <select id="pack" aria-label="Pack"><option value="">All packs</option></select>
+    <select id="days" aria-label="Time range">
+      <option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option>
+      <option value="90">Last 90 days</option><option value="0">All time</option>
+    </select>
+    <label><input type="checkbox" id="demo" checked> Include demo data</label>
+  </div>
+
+  <div class="demo" id="demoNote" hidden></div>
+  <p class="error" id="error" hidden></p>
+
+  <section class="tiles" aria-label="Summary">
+    <div class="tile"><div class="k">Conversations</div><div class="v" id="tTotal">–</div><div class="s">in this period</div></div>
+    <div class="tile"><div class="k">Fix rate</div><div class="v" id="tFix">–</div><div class="s">fixed ÷ (fixed + escalated)</div></div>
+    <div class="tile"><div class="k">Escalated to staff</div><div class="v" id="tEsc">–</div><div class="s">handed off with a note</div></div>
+    <div class="tile"><div class="k">Safety triggers</div><div class="v" id="tSafety">–</div><div class="s">got the fixed safety message</div></div>
+    <div class="tile"><div class="k">Not covered</div><div class="v" id="tNot">–</div><div class="s">the docs had no answer</div></div>
+  </section>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2>Most common problems</h2>
+      <p class="sub">Conversations by diagnosis, with each problem's fix rate.</p>
+      <div class="bars" id="problems"></div>
+    </section>
+    <section class="panel">
+      <h2>Outcomes</h2>
+      <p class="sub">How conversations ended.</p>
+      <div class="bars" id="outcomes"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>Questions the docs don't cover</h2>
+    <p class="sub">What visitors asked that no doc answered. This is the list of docs to write next.</p>
+    <div id="uncovered"></div>
+  </section>
+</div>
+
+<div class="tip" id="tip" hidden role="tooltip"></div>
+
+<dialog id="codeDialog">
+  <form id="codeForm">
+    <h2 style="margin:0">Staff code</h2>
+    <input type="password" id="codeInput" autocomplete="off" required aria-label="Staff code">
+    <button type="submit">Continue</button>
+    <p class="error" id="codeError"></p>
+  </form>
+</dialog>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; };
+// Outcome colors come from the status palette and always sit next to an icon and a label.
+const OUTCOMES = [
+  ["fixed", "Fixed", "✓", "var(--good)"],
+  ["escalated", "Escalated", "↗", "var(--warning)"],
+  ["not_covered", "Not covered", "?", "var(--serious)"],
+  ["safety", "Safety", "!", "var(--critical)"],
+  ["answered", "Answered", "•", "var(--neutral)"],
+  ["open", "Unfinished", "…", "var(--neutral)"],
+];
+const code = { get() { try { return sessionStorage.getItem("pa-admin") || ""; } catch { return code.m || ""; } },
+               set(v) { try { sessionStorage.setItem("pa-admin", v); } catch { code.m = v; } } };
+const pct = (x) => x == null ? "–" : Math.round(x * 100) + "%";
+
+fetch("/packs").then(r => r.json()).then(packs => {
+  for (const p of packs) $("pack").add(new Option(p.name, p.id));
+});
+for (const id of ["pack", "days", "demo"]) $(id).addEventListener("change", load);
+
+$("codeDialog").addEventListener("cancel", (e) => e.preventDefault());
+$("codeForm").addEventListener("submit", (e) => { e.preventDefault(); code.set($("codeInput").value.trim()); $("codeDialog").close(); load(); });
+
+async function load() {
+  const qs = new URLSearchParams({ pack: $("pack").value, days: $("days").value, include_demo: $("demo").checked });
+  const res = await fetch("/admin/api/insights?" + qs, { headers: { "X-Admin-Code": code.get() } });
+  if (res.status === 401 || res.status === 403 && !code.get()) { $("codeError").textContent = code.get() ? "That code didn't work." : ""; $("codeDialog").showModal(); return; }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) { $("error").hidden = false; $("error").textContent = data.detail || "Couldn't load insights."; return; }
+  $("error").hidden = true;
+  render(data);
+}
+
+function render(d) {
+  $("demoNote").hidden = !d.demo_rows;
+  $("demoNote").innerHTML = "";
+  if (d.demo_rows) {
+    $("demoNote").append(el("strong", "", `Demo data: ${d.demo_rows} of ${d.total} conversations are fake. `),
+      "They were added by scripts/seed_insights.py to show what the dashboard looks like. Untick “Include demo data” to see real use only, or remove them with ",
+      el("code", "", "python scripts/seed_insights.py --remove"), ".");
+  }
+  $("tTotal").textContent = d.total.toLocaleString();
+  $("tFix").textContent = pct(d.fix_rate);
+  $("tEsc").textContent = d.escalations.toLocaleString();
+  $("tSafety").textContent = d.safety.toLocaleString();
+  $("tNot").textContent = d.not_covered.toLocaleString();
+
+  const maxP = Math.max(1, ...d.problems.map(p => p.count));
+  $("problems").replaceChildren(...(d.problems.length ? d.problems.map(p => barRow(
+    p.diagnosis, "", p.count / maxP, "var(--bar)",
+    [String(p.count), el("span", "rate", ` · ${pct(p.fix_rate)} fixed`)],
+    `${p.diagnosis}: ${p.count} conversations, ${p.fixed} fixed, ${p.escalated} escalated, fix rate ${pct(p.fix_rate)}`)) : [el("p", "empty", "No diagnoses yet.")]));
+
+  const shown = OUTCOMES.filter(([k]) => d.outcomes[k]);
+  const maxO = Math.max(1, ...shown.map(([k]) => d.outcomes[k]));
+  $("outcomes").replaceChildren(...(shown.length ? shown.map(([k, label, ico, color]) => barRow(
+    label, ico, d.outcomes[k] / maxO, color,
+    [String(d.outcomes[k]), el("span", "rate", ` · ${pct(d.total ? d.outcomes[k] / d.total : null)}`)],
+    `${label}: ${d.outcomes[k]} of ${d.total} conversations`)) : [el("p", "empty", "No conversations yet.")]));
+
+  if (!d.uncovered.length) { $("uncovered").replaceChildren(el("p", "empty", "Nothing yet. Every question had a doc.")); return; }
+  const table = el("table");
+  const head = el("tr");
+  head.append(el("th", "", "Question"), el("th", "", "Times asked"), el("th", "", "Last asked"));
+  table.append(head);
+  for (const u of d.uncovered) {
+    const tr = el("tr");
+    tr.append(el("td", "", u.question), el("td", "n", `${u.count}×`), el("td", "d", new Date(u.last_seen).toLocaleDateString()));
+    table.append(tr);
+  }
+  $("uncovered").replaceChildren(table);
+}
+
+function barRow(label, icon, frac, color, valueParts, tipText) {
+  const row = el("div", "bar-row");
+  const lbl = el("div", "lbl");
+  if (icon) { const i = el("span", "ico", icon); i.style.color = color; i.setAttribute("aria-hidden", "true"); lbl.append(i); }
+  lbl.append(label);
+  lbl.title = label;
+  const track = el("div", "track"), fill = el("div", "fill");
+  fill.style.width = (frac * 100).toFixed(1) + "%";
+  fill.style.background = color;
+  track.append(fill);
+  const val = el("div", "val");
+  val.append(...valueParts);
+  row.append(lbl, track, val);
+  row.addEventListener("mousemove", (e) => tip(e, tipText));
+  row.addEventListener("mouseleave", () => { $("tip").hidden = true; });
+  return row;
+}
+
+function tip(e, text) {
+  const t = $("tip");
+  t.textContent = text;
+  t.hidden = false;
+  const x = Math.min(e.clientX + 14, innerWidth - t.offsetWidth - 8);
+  t.style.left = x + "px";
+  t.style.top = (e.clientY + 14) + "px";
+}
+
+if (code.get()) load(); else $("codeDialog").showModal();
+</script>
+</body>
+</html>

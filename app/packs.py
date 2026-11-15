@@ -76,13 +76,18 @@ def render_doc(fname: str, text: str, steps: dict[str, Step]) -> str:
 
 
 def list_packs() -> list[str]:
-    return sorted(p.parent.name for p in DOCS_DIR.glob("*/pack.yaml"))
+    """Live packs only. Folders starting with "_" (such as _drafts) are never live."""
+    return sorted(p.parent.name for p in DOCS_DIR.glob("*/pack.yaml") if not p.parent.name.startswith("_"))
 
 
 def load_pack(pack_id: str) -> Pack:
     if pack_id not in list_packs():
         raise ValueError(f"Unknown pack: {pack_id}")
-    folder = DOCS_DIR / pack_id
+    return load_pack_dir(DOCS_DIR / pack_id, pack_id)
+
+
+def load_pack_dir(folder: Path, pack_id: str) -> Pack:
+    """Load and check a pack folder (live or draft)."""
     meta = yaml.safe_load((folder / "pack.yaml").read_text()) or {}
     for key in ("name", "description", "escalation", "safety_message"):
         if not meta.get(key):

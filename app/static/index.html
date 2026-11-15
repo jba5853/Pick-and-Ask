@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1e407c">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Point and Ask</title>
+<title>Glance</title>
 <style>
   :root {
     --bg: #f3f4f7; --surface: #ffffff; --surface-2: #f7f8fa; --text: #15191e; --muted: #5d6876; --border: #dfe3e8;
@@ -38,6 +38,49 @@
   button { cursor: pointer; border: 0; background: none; }
   button:disabled { opacity: .5; cursor: default; }
   [hidden] { display: none !important; }
+
+  /* Hands-free coach */
+  .handsfree { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border-radius: 12px; background: var(--accent); color: var(--accent-text); font-weight: 700; font-size: .9rem; white-space: nowrap; }
+  .handsfree svg { width: 18px; height: 18px; }
+  .coach { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; background: #0b0f14; color: #eef2f6; overflow-y: auto;
+           padding: calc(12px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)); }
+  .coach-top { display: flex; align-items: center; justify-content: space-between; max-width: 640px; width: 100%; margin: 0 auto; }
+  .coach-state { font-weight: 700; letter-spacing: .02em; color: #9fb3c8; }
+  .coach-exit { min-height: 44px; padding: 0 16px; border-radius: 12px; background: #1c242e; color: #eef2f6; font-weight: 650; }
+  .coach-start, .coach-live { max-width: 640px; width: 100%; margin: 0 auto; }
+  .coach-start h2 { font-size: 1.6rem; margin: 24px 0 10px; }
+  .coach-start ol { padding-left: 1.3em; color: #c7d2dd; line-height: 1.55; }
+  .coach-start li { margin: 8px 0; }
+  .coach-nomic { color: #ffc46b; }
+  .coach-go { width: 100%; min-height: 96px; margin-top: 24px; border-radius: 28px; background: #8fb4ff; color: #0b0f14; font-size: 1.5rem; font-weight: 800; box-shadow: 0 10px 40px rgba(143,180,255,.25); }
+  .orb { width: 132px; height: 132px; margin: 28px auto 18px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #2a3a52, #141b25); transition: background .3s; }
+  .orb span { width: 56px; height: 56px; border-radius: 50%; background: #5b6b7f; transition: transform .3s, background .3s; }
+  .orb[data-state="speaking"] span { background: #8fb4ff; animation: talk 1s ease-in-out infinite; }
+  .orb[data-state="listening"] span { background: #6fd492; animation: breathe 1.6s ease-in-out infinite; }
+  .orb[data-state="thinking"] span { background: #c9adff; animation: breathe .9s ease-in-out infinite; }
+  .orb[data-state="paused"] span, .orb[data-state="buttons"] span { background: #ffc46b; }
+  @keyframes talk { 50% { transform: scale(1.25); } }
+  @keyframes breathe { 50% { transform: scale(.8); opacity: .7; } }
+  @media (prefers-reduced-motion: reduce) { .orb span { animation: none !important; } }
+  .coach-caption { min-height: 3.2em; margin: 0; text-align: center; font-size: 1.45rem; font-weight: 650; line-height: 1.35; }
+  .coach-heard { min-height: 1.5em; margin: 8px 0 14px; text-align: center; color: #9fb3c8; font-style: italic; }
+  .coach-card .card { margin-top: 6px; }
+  .coach-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 4px 0 14px; }
+  .coach-buttons button { min-height: 84px; border-radius: 22px; font-size: 1.3rem; font-weight: 800; background: #8fb4ff; color: #0b0f14; }
+  .coach-buttons button.warn { background: #ffc46b; }
+  .coach-buttons button.soft { background: #1c242e; color: #eef2f6; }
+  .coach-buttons button.staff { grid-column: 1 / -1; min-height: 64px; background: #1c242e; color: #ffc46b; border: 2px solid #5e4519; }
+  .coach-pause { display: block; width: 100%; min-height: 60px; margin-top: 16px; border-radius: 18px; background: #1c242e; color: #eef2f6; font-size: 1.15rem; font-weight: 700; }
+  .coach-camera { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 16px; padding: 24px; background: rgba(5,8,12,.94); }
+  .coach-camera-btn { flex: 1; max-height: 70vh; border-radius: 32px; background: #8fb4ff; color: #0b0f14; font-size: 1.8rem; font-weight: 800; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+  .coach-camera-btn svg { width: 72px; height: 72px; }
+  .coach-camera-skip { min-height: 56px; border-radius: 18px; background: #1c242e; color: #eef2f6; font-weight: 700; }
+  .coach-debug { margin-top: 18px; padding: 12px; border: 1px dashed #3a4654; border-radius: 14px; }
+  .coach-debug label { font-size: .85rem; color: #9fb3c8; font-weight: 700; }
+  .coach-debug .row { display: flex; gap: 8px; margin-top: 6px; }
+  .coach-debug input { flex: 1; min-height: 44px; padding: 8px 12px; border-radius: 10px; border: 1px solid #3a4654; background: #121821; color: #eef2f6; }
+  .coach-debug button { min-height: 44px; padding: 0 16px; border-radius: 10px; background: #8fb4ff; color: #0b0f14; font-weight: 700; }
+  .coach-log { margin-top: 8px; max-height: 180px; overflow: auto; font: 12px/1.4 ui-monospace, Menlo, monospace; color: #9fb3c8; }
 
   .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; max-width: 640px; margin: 0 auto; }
 
@@ -155,8 +198,12 @@
       <span class="logo" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg>
       </span>
-      Point and Ask
+      Glance
     </div>
+    <button type="button" class="handsfree" id="coachOpen" aria-label="Hands-free coach mode">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg>
+      Hands-free
+    </button>
   </header>
   <div class="controls">
     <select id="pack" aria-label="Knowledge pack"></select>
@@ -212,6 +259,54 @@
     </div>
   </footer>
 </div>
+
+<section class="coach" id="coach" hidden aria-label="Hands-free coach">
+  <div class="coach-top">
+    <span class="coach-state" id="coachState"></span>
+    <button type="button" class="coach-exit" id="coachExit">Exit</button>
+  </div>
+
+  <div class="coach-start" id="coachStart">
+    <h2>Hands-free coach</h2>
+    <ol>
+      <li>Pair your Meta glasses with this phone (Bluetooth), so sound and the mic go through the glasses.</li>
+      <li>Tap <strong>Start hands-free</strong>, then put the phone in your pocket.</li>
+      <li>Talk normally. Say <em>done</em>, <em>didn't work</em>, <em>repeat</em>, <em>explain</em>, <em>take a look</em>, <em>get staff</em> or <em>stop</em>, or just ask a question.</li>
+      <li>Wait for the soft tone before you talk.</li>
+    </ol>
+    <p class="coach-nomic" id="coachNoMic" hidden>This browser can't do voice commands, so you'll get big buttons instead. The coach still talks.</p>
+    <button type="button" class="coach-go" id="coachStartBtn">Start hands-free</button>
+  </div>
+
+  <div class="coach-live" id="coachLive" hidden>
+    <div class="orb" id="coachOrb" data-state="off" aria-hidden="true"><span></span></div>
+    <p class="coach-caption" id="coachCaption" aria-live="polite"></p>
+    <p class="coach-heard" id="coachHeard"></p>
+    <div class="coach-buttons" id="coachButtons" hidden>
+      <button type="button" data-say="done">Done / Yes</button>
+      <button type="button" data-say="didn't work" class="warn">Didn't work</button>
+      <button type="button" data-say="repeat" class="soft">Repeat</button>
+      <button type="button" data-say="take a look" class="soft">Take a look</button>
+      <button type="button" data-say="get staff" class="staff">Get staff</button>
+    </div>
+    <div class="coach-card" id="coachCard"></div>
+    <button type="button" class="coach-pause" id="coachPause">Pause</button>
+    <div class="coach-debug" id="coachDebug" hidden>
+      <label for="coachSim">Simulate voice (debug)</label>
+      <div class="row"><input id="coachSim" type="text" placeholder="e.g. didn't work" autocomplete="off"><button type="button" id="coachSimSend">Say</button></div>
+      <div class="coach-log" id="coachLog"></div>
+    </div>
+  </div>
+
+  <div class="coach-camera" id="coachCamera" hidden>
+    <button type="button" class="coach-camera-btn" id="coachCameraBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>
+      Tap to take a photo
+    </button>
+    <button type="button" class="coach-camera-skip" id="coachCameraSkip">Skip</button>
+  </div>
+  <input type="file" id="coachCameraInput" accept="image/*" capture="environment" hidden>
+</section>
 
 <dialog id="codeDialog">
   <form id="codeForm" method="dialog">
@@ -575,12 +670,13 @@ function unarchive() {
   $("earlierLabel").textContent = `Earlier in this conversation (${$("earlier").childElementCount})`;
 }
 
-function showReply(data, withActions = true) {
+function showReply(data, withActions = true, silent = false) {
+  window.lastReplyData = data;
   const card = renderReply(data);
   $("current").replaceChildren(card);
   lastExchange = null;
   renderQuick(withActions ? data.actions || [] : []);
-  if ($("autoRead").checked) speak(spokenText(data));
+  if (!silent && $("autoRead").checked) speak(spokenText(data));
 }
 
 function renderQuick(actions) {
@@ -726,5 +822,7 @@ function renderSummary(s) {
   return wrap;
 }
 </script>
+<script src="/static/coach-commands.js"></script>
+<script src="/static/coach.js"></script>
 </body>
 </html>
