@@ -326,6 +326,42 @@ def identify(session: Session, jpeg: bytes, note: str = "") -> Session:
         return session
 
 
+def correct(session: Session, name: str, brand: str = "", model: str = "") -> Session:
+    """The user says what the thing really is. Re-read the photo with that as ground truth and rebuild the options.
+    A safety stop is never lifted by a correction."""
+    name, brand, model = name.strip()[:120], brand.strip()[:80], model.strip()[:80]
+    if not name:
+        raise ValueError("Tell me what it is.")
+    with session.lock:
+        if session.stage == "stopped":
+            raise ValueError("This was stopped for safety, so I can't continue with it. Take a new photo.")
+        if not session.photos:
+            raise ValueError("Take a photo first.")
+        label = " ".join(x for x in (brand, model) if x)
+        claim = name + (f" ({label})" if label else "")
+        session.say("user", f"It's actually: {claim}.", "correction")
+        content = [image_block(session.photos[0]), {"type": "text", "text": (
+            f"Correction from the user: this is {claim}. Trust the user's identification over any guess of yours and "
+            "use exactly that name, brand and model. Describe its current state from the photo, re-check hazards, "
+            "and offer the actions that fit this object.")}]
+        out = structured(IDENTIFY_SYSTEM, content, IDENTIFY_SCHEMA, effort="low")
+        if not out or out.get("_refusal"):
+            out = {**session.obj, "spoken": ""}
+        actions = [a for a in out.get("actions", []) if a.get("id") in ACTION_IDS][:4] or session.actions or DEFAULT_ACTIONS
+        out.update(object_name=name, brand=brand, model=model, confidence="high", question_for_user="", corrected=True)
+        out["spoken"] = clip(out.get("spoken") or f"Got it, a {claim}. What do you want to do?", 26)
+        session.obj, session.actions = out, actions
+        session.task, session.steps, session.current, session.sources = {}, [], 0, []
+        if out.get("hazard") == "stop":
+            session.stage = "stopped"
+            session.say("assistant", STOP_MESSAGE, "safety")
+        else:
+            session.stage = "menu"
+            session.say("assistant", out["spoken"], "identify")
+        session.bump()
+        return session
+
+
 def describe_object(session: Session) -> str:
     o = session.obj
     bits = [o.get("object_name") or "an unidentified object"]
@@ -572,6 +608,7 @@ def view(session: Session) -> dict:
         "object": {k: o.get(k, "") for k in ("object_name", "brand", "model", "category", "confidence",
                                              "what_i_see", "hazard", "hazard_note", "spoken",
                                              "question_for_user")},
+        "corrected": bool(o.get("corrected")),
         "actions": session.actions,
         "task": session.task,
         "steps": [s.__dict__ for s in session.steps],

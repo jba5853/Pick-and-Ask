@@ -217,6 +217,19 @@ async def api_task(request: Request, session_id: str = Form(...), action: str = 
     return A.view(s)
 
 
+@app.post("/api/correct")
+async def api_correct(request: Request, session_id: str = Form(...), name: str = Form(""),
+                      brand: str = Form(""), model: str = Form("")):
+    gate(request, session_id)
+    s = find(session_id)
+    try:
+        await run_in_threadpool(A.correct, s, name, brand, model)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    A.store.event(s, "task")
+    return A.view(s)
+
+
 @app.post("/api/step")
 async def api_step(request: Request, session_id: str = Form(...), op: str = Form(...)):
     check_access(request, request.headers.get("x-access-code", ""))

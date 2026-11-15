@@ -328,3 +328,48 @@ def test_parse_json_block():
     assert A.parse_json_block('blah ```json\n{"a": 1}\n``` more') == {"a": 1}
     assert A.parse_json_block('text {"b": 2} end') == {"b": 2}
     assert A.parse_json_block("no json") is None
+
+
+def test_correct_renames_and_rebuilds_menu(fake):
+    s = A.store.new("web"); A.identify(s, jpeg())
+    A.start_task(s, "setup")
+    assert s.steps
+    fake["identify"].update(object_name="Wrong guess", brand="Other", model="X1")
+    A.correct(s, "Space heater", "Vornado", "VH200")
+    assert (s.obj["object_name"], s.obj["brand"], s.obj["model"]) == ("Space heater", "Vornado", "VH200")
+    assert s.obj["corrected"] and s.stage == "menu" and not s.steps and not s.task
+    assert s.messages[-2]["kind"] == "correction"
+    assert A.view(s)["corrected"] is True
+
+
+def test_correct_never_lifts_safety_stop(fake):
+    fake["identify"].update(hazard="stop")
+    s = A.store.new("web"); A.identify(s, jpeg())
+    with pytest.raises(ValueError):
+        A.correct(s, "Toaster")
+    assert s.stage == "stopped"
+
+
+def test_correct_can_detect_new_hazard(fake):
+    s = A.store.new("web"); A.identify(s, jpeg())
+    fake["identify"].update(hazard="stop")
+    A.correct(s, "Gas heater")
+    assert s.stage == "stopped" and s.messages[-1]["kind"] == "safety"
+
+
+def test_correct_needs_a_name_and_works_when_model_fails(fake, monkeypatch):
+    s = A.store.new("web"); A.identify(s, jpeg())
+    with pytest.raises(ValueError):
+        A.correct(s, "   ")
+    monkeypatch.setattr(A, "structured", lambda *a, **k: None)
+    A.correct(s, "Kettle", "Smeg")
+    assert s.obj["object_name"] == "Kettle" and s.stage == "menu" and "Kettle" in s.obj["spoken"]
+
+
+def test_api_correct(web, fake):
+    h = {"x-access-code": "demo-code-1"}
+    files = {"photo": ("a.jpg", jpeg(), "image/jpeg")}
+    v = web.post("/api/identify", files=files, headers=h).json()
+    v = web.post("/api/correct", data={"session_id": v["id"], "name": "Air purifier", "brand": "Levoit"}, headers=h).json()
+    assert v["object"]["object_name"] == "Air purifier" and v["corrected"] is True
+    assert web.post("/api/correct", data={"session_id": v["id"], "name": ""}, headers=h).status_code == 400
